@@ -1,0 +1,34 @@
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Build outputs
+dist/
+build/
+**/dist/
+**/build/
+
+# Generated files
+*.generated.*
+**/prisma/migrations/
+
+# Logs
+*.log
+
+# Environment files
+.env*
+
+# Coverage
+coverage/
+
+# Lock files
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Frontend specific
+frontend/.next/
+frontend/out/
+
+# Backend specific  
+backend/prisma/migrations/

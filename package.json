@@ -1,0 +1,20 @@
+{
+  "name": "football-team-management",
+  "version": "1.0.0",
+  "description": "Football team management system with NestJS backend and Next.js frontend",
+  "scripts": {
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\" --ignore-path .prettierignore",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\" --ignore-path .prettierignore",
+    "backend:dev": "cd backend && npm run start:dev",
+    "backend:build": "cd backend && npm run build",
+    "backend:format": "cd backend && npm run format",
+    "install:all": "npm install && cd backend && npm install && cd ../frontend && npm install"
+  },
+  "devDependencies": {
+    "prettier": "^3.6.2"
+  },
+  "workspaces": [
+    "backend",
+    "frontend"
+  ]
+}
