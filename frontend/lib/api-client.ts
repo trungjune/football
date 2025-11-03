@@ -2,7 +2,10 @@ import axios from 'axios';
 
 // Create axios instance
 export const apiClient = axios.create({
-  baseURL: '/api',
+  baseURL:
+    process.env.NODE_ENV === 'production'
+      ? 'https://football-team-manager-pi.vercel.app/api'
+      : '/api',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
@@ -58,7 +61,7 @@ export interface User {
 }
 
 export interface AuthResponse {
-  accessToken: string;
+  access_token: string;
   user: User;
 }
 

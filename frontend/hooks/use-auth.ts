@@ -11,7 +11,7 @@ export function useLogin() {
   return useMutation({
     mutationFn: authApi.login,
     onSuccess: data => {
-      login(data.accessToken, data.user);
+      login(data.access_token, data.user);
       router.push('/dashboard');
     },
     onError: (error: any) => {
