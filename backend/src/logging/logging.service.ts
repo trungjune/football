@@ -20,27 +20,27 @@ export class CustomLoggingService implements LoggerService {
     this.logLevel = this.configService.get<LogLevel>('LOG_LEVEL', 'log');
   }
 
-  log(message: any, context?: string) {
+  log(message: string | object, context?: string) {
     this.writeLog('log', message, context);
   }
 
-  error(message: any, trace?: string, context?: string) {
+  error(message: string | object, trace?: string, context?: string) {
     this.writeLog('error', message, context, trace);
   }
 
-  warn(message: any, context?: string) {
+  warn(message: string | object, context?: string) {
     this.writeLog('warn', message, context);
   }
 
-  debug(message: any, context?: string) {
+  debug(message: string | object, context?: string) {
     this.writeLog('debug', message, context);
   }
 
-  verbose(message: any, context?: string) {
+  verbose(message: string | object, context?: string) {
     this.writeLog('verbose', message, context);
   }
 
-  private writeLog(level: LogLevel, message: any, context?: string, trace?: string) {
+  private writeLog(level: LogLevel, message: string | object, context?: string, trace?: string) {
     const logEntry: LogEntry = {
       timestamp: new Date(),
       level,

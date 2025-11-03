@@ -95,7 +95,11 @@ export class TeamDivisionService {
       },
     };
   }
-  private calculateMemberSkill(member: any): number {
+  private calculateMemberSkill(member: {
+    memberType?: string;
+    skillLevel?: number;
+    position?: string;
+  }): number {
     // Simple skill calculation based on member data
     let baseSkill = 3; // Default skill level
 

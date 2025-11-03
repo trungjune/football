@@ -207,7 +207,11 @@ export class FormationAnalyticsDto {
       averageTeamScore: 12.8,
     },
   })
-  teamBalance: any;
+  teamBalance: {
+    scoreBalance: string;
+    averageTeamSize: number;
+    averageTeamScore: number;
+  };
 
   @ApiProperty({
     example: {
@@ -215,7 +219,10 @@ export class FormationAnalyticsDto {
       balance: 'Cân bằng',
     },
   })
-  positionDistribution: any;
+  positionDistribution: {
+    distribution: Record<string, number>;
+    balance: string;
+  };
 
   @ApiProperty({
     example: {
@@ -224,7 +231,11 @@ export class FormationAnalyticsDto {
       variance: 0.45,
     },
   })
-  skillDistribution: any;
+  skillDistribution: {
+    averageSkill: number;
+    skillRange: { min: number; max: number };
+    variance: number;
+  };
 }
 
 export class MatchResultDto {
