@@ -5,6 +5,8 @@ import { Providers } from './providers';
 import { Toaster } from '@/components/ui/toaster';
 import { InstallPrompt } from '@/components/pwa/install-prompt';
 import { UpdateNotification } from '@/components/pwa/update-notification';
+import { Analytics } from '@vercel/analytics/next';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -52,6 +54,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <InstallPrompt />
           <UpdateNotification />
         </Providers>
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
