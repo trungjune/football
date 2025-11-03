@@ -52,7 +52,7 @@ export function isPWA(): boolean {
 
   return (
     window.matchMedia('(display-mode: standalone)').matches ||
-    (window.navigator as any).standalone === true ||
+    (window.navigator as { standalone?: boolean }).standalone === true ||
     document.referrer.includes('android-app://')
   );
 }
@@ -155,9 +155,9 @@ export function getNetworkStatus(): { online: boolean; effectiveType?: string } 
   }
 
   const connection =
-    (navigator as any).connection ||
-    (navigator as any).mozConnection ||
-    (navigator as any).webkitConnection;
+    (navigator as { connection?: { effectiveType?: string } }).connection ||
+    (navigator as { mozConnection?: { effectiveType?: string } }).mozConnection ||
+    (navigator as { webkitConnection?: { effectiveType?: string } }).webkitConnection;
 
   return {
     online: navigator.onLine,

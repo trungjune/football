@@ -2,7 +2,7 @@
 
 interface AnalyticsEvent {
   name: string;
-  properties?: Record<string, any>;
+  properties?: Record<string, unknown>;
   userId?: string;
   timestamp?: number;
 }
@@ -34,7 +34,7 @@ class AnalyticsService {
 
   private initializeAnalytics() {
     // Initialize Vercel Analytics if available
-    if (typeof window !== 'undefined' && (window as any).va) {
+    if (typeof window !== 'undefined' && (window as { va?: unknown }).va) {
       console.log('Vercel Analytics initialized');
     }
 
@@ -66,8 +66,13 @@ class AnalyticsService {
     };
 
     // Send to Vercel Analytics
-    if ((window as any).va) {
-      (window as any).va('track', event.name, event.properties);
+    const vercelAnalytics = (
+      window as {
+        va?: (action: string, name: string, properties?: Record<string, unknown>) => void;
+      }
+    ).va;
+    if (vercelAnalytics) {
+      vercelAnalytics('track', event.name, event.properties);
     }
 
     // Send to custom analytics endpoint
@@ -132,7 +137,7 @@ class AnalyticsService {
     }
   }
 
-  private onPerfEntry = (metric: any) => {
+  private onPerfEntry = (metric: { name: string; value: number; startTime: number }) => {
     this.trackPerformanceMetric({
       name: metric.name.toLowerCase(),
       value: metric.value,
@@ -219,7 +224,7 @@ class AnalyticsService {
   }
 
   // Track specific user actions
-  trackUserAction(action: string, properties?: Record<string, any>) {
+  trackUserAction(action: string, properties?: Record<string, unknown>) {
     this.track({
       name: 'user_action',
       properties: {
@@ -230,7 +235,7 @@ class AnalyticsService {
   }
 
   // Track errors
-  trackError(error: Error, context?: Record<string, any>) {
+  trackError(error: Error, context?: Record<string, unknown>) {
     if (!this.isEnabled) return;
 
     this.track({
@@ -245,7 +250,7 @@ class AnalyticsService {
   }
 
   // Track feature usage
-  trackFeatureUsage(feature: string, properties?: Record<string, any>) {
+  trackFeatureUsage(feature: string, properties?: Record<string, unknown>) {
     this.track({
       name: 'feature_usage',
       properties: {
@@ -256,7 +261,7 @@ class AnalyticsService {
   }
 
   // Send data to analytics endpoint
-  private async sendToAnalytics(type: string, data: any) {
+  private async sendToAnalytics(type: string, data: Record<string, unknown>) {
     try {
       // Send to custom analytics endpoint
       await fetch('/api/analytics', {
@@ -290,7 +295,7 @@ const analytics = new AnalyticsService();
 export default analytics;
 
 // Convenience functions
-export const trackEvent = (name: string, properties?: Record<string, any>) => {
+export const trackEvent = (name: string, properties?: Record<string, unknown>) => {
   analytics.track({ name, properties });
 };
 
@@ -298,15 +303,15 @@ export const trackPageView = (page?: string) => {
   analytics.trackPageView(page);
 };
 
-export const trackUserAction = (action: string, properties?: Record<string, any>) => {
+export const trackUserAction = (action: string, properties?: Record<string, unknown>) => {
   analytics.trackUserAction(action, properties);
 };
 
-export const trackFeatureUsage = (feature: string, properties?: Record<string, any>) => {
+export const trackFeatureUsage = (feature: string, properties?: Record<string, unknown>) => {
   analytics.trackFeatureUsage(feature, properties);
 };
 
-export const trackError = (error: Error, context?: Record<string, any>) => {
+export const trackError = (error: Error, context?: Record<string, unknown>) => {
   analytics.trackError(error, context);
 };
 

@@ -2,6 +2,35 @@ import { useEffect, useRef, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import websocketService from '@/lib/websocket';
 
+interface Registration {
+  id: string;
+  memberId: string;
+  sessionId: string;
+  status: string;
+  createdAt: string;
+}
+
+interface Attendance {
+  id: string;
+  memberId: string;
+  sessionId: string;
+  status: 'PRESENT' | 'ABSENT' | 'LATE';
+  createdAt: string;
+  member?: { id: string };
+}
+
+interface Notification {
+  id: string;
+  title: string;
+  message: string;
+  content?: string;
+  type: string;
+  createdAt: string;
+  timestamp?: string;
+  read: boolean;
+  isBroadcast?: boolean;
+}
+
 export function useWebSocket() {
   const { token } = useAuth();
   const [isConnected, setIsConnected] = useState(false);
@@ -60,7 +89,7 @@ export function useWebSocket() {
   };
 }
 
-export function useWebSocketEvent(event: string, callback: Function) {
+export function useWebSocketEvent<T = unknown>(event: string, callback: (data: T) => void) {
   const { websocketService: ws } = useWebSocket();
 
   useEffect(() => {
@@ -76,8 +105,8 @@ export function useWebSocketEvent(event: string, callback: Function) {
 
 // Specific hooks for different events
 export function useSessionUpdates(sessionId?: string) {
-  const [registrations, setRegistrations] = useState<any[]>([]);
-  const [attendances, setAttendances] = useState<any[]>([]);
+  const [registrations, setRegistrations] = useState<Registration[]>([]);
+  const [attendances, setAttendances] = useState<Attendance[]>([]);
   const { websocketService: ws } = useWebSocket();
 
   useEffect(() => {
@@ -86,28 +115,29 @@ export function useSessionUpdates(sessionId?: string) {
     // Join session room
     ws.joinSession(sessionId);
 
-    const handleRegistrationUpdate = (data: any) => {
+    const handleRegistrationUpdate = (data: {
+      sessionId: string;
+      type: string;
+      registration: Registration;
+      memberId?: string;
+    }) => {
       if (data.sessionId === sessionId) {
         if (data.type === 'registration') {
-          setRegistrations(prev => [...prev, data.member]);
+          setRegistrations(prev => [...prev, data.registration]);
         } else if (data.type === 'cancellation') {
           setRegistrations(prev => prev.filter(r => r.id !== data.memberId));
         }
       }
     };
 
-    const handleAttendanceUpdate = (data: any) => {
+    const handleAttendanceUpdate = (data: { sessionId: string; attendance: Attendance }) => {
       if (data.sessionId === sessionId) {
         setAttendances(prev => {
-          const existing = prev.find(a => a.member.id === data.member.id);
+          const existing = prev.find(a => a.id === data.attendance.id);
           if (existing) {
-            return prev.map(a =>
-              a.member.id === data.member.id
-                ? { ...a, status: data.status, reason: data.reason }
-                : a
-            );
+            return prev.map(a => (a.id === data.attendance.id ? data.attendance : a));
           } else {
-            return [...prev, { member: data.member, status: data.status, reason: data.reason }];
+            return [...prev, data.attendance];
           }
         });
       }
@@ -129,17 +159,17 @@ export function useSessionUpdates(sessionId?: string) {
 }
 
 export function useNotifications() {
-  const [notifications, setNotifications] = useState<any[]>([]);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
   const { websocketService: ws } = useWebSocket();
 
   useEffect(() => {
     if (!ws) return;
 
-    const handleNotification = (data: any) => {
+    const handleNotification = (data: Notification) => {
       setNotifications(prev => [data, ...prev].slice(0, 50)); // Keep last 50 notifications
     };
 
-    const handleBroadcastNotification = (data: any) => {
+    const handleBroadcastNotification = (data: Notification) => {
       setNotifications(prev => [{ ...data, isBroadcast: true }, ...prev].slice(0, 50));
     };
 
@@ -169,26 +199,37 @@ export function useNotifications() {
 }
 
 export function useAdminUpdates() {
-  const [connectedUsers, setConnectedUsers] = useState<any[]>([]);
-  const [adminMessages, setAdminMessages] = useState<any[]>([]);
+  const [connectedUsers, setConnectedUsers] = useState<
+    { userId: string; role: string; connectedAt: string }[]
+  >([]);
+  const [adminMessages, setAdminMessages] = useState<
+    { id: string; message: string; timestamp: string; from: string }[]
+  >([]);
   const { websocketService: ws } = useWebSocket();
 
   useEffect(() => {
     if (!ws) return;
 
-    const handleConnectedUsers = (data: any) => {
+    const handleConnectedUsers = (
+      data: { userId: string; role: string; connectedAt: string }[]
+    ) => {
       setConnectedUsers(data);
     };
 
-    const handleAdminConnected = (data: any) => {
+    const handleAdminConnected = (data: { userId: string; role: string; connectedAt: string }) => {
       setConnectedUsers(prev => [...prev, data]);
     };
 
-    const handleAdminDisconnected = (data: any) => {
+    const handleAdminDisconnected = (data: { userId: string }) => {
       setConnectedUsers(prev => prev.filter(u => u.userId !== data.userId));
     };
 
-    const handleAdminBroadcast = (data: any) => {
+    const handleAdminBroadcast = (data: {
+      id: string;
+      message: string;
+      timestamp: string;
+      from: string;
+    }) => {
       setAdminMessages(prev => [data, ...prev].slice(0, 100));
     };
 

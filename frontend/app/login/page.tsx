@@ -29,7 +29,8 @@ export default function LoginPage() {
         <form className="mt-8 space-y-6" onSubmit={handleLogin}>
           {loginMutation.error && (
             <div className="rounded border border-red-400 bg-red-100 px-4 py-3 text-red-700">
-              {(loginMutation.error as any)?.response?.data?.message || 'Đăng nhập thất bại'}
+              {(loginMutation.error as { response?: { data?: { message?: string } } })?.response
+                ?.data?.message || 'Đăng nhập thất bại'}
             </div>
           )}
 

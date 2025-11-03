@@ -19,6 +19,14 @@ import api from '@/lib/axios';
 type Position = 'GOALKEEPER' | 'DEFENDER' | 'MIDFIELDER' | 'FORWARD';
 type BalanceStrategy = 'RANDOM' | 'SKILL_BALANCED' | 'POSITION_BALANCED' | 'BALANCED';
 
+interface Member {
+  id: string;
+  fullName: string;
+  position: Position;
+  memberType: 'OFFICIAL' | 'TRIAL' | 'GUEST';
+  status: 'ACTIVE' | 'INACTIVE' | 'LEFT';
+}
+
 interface Participant {
   id: string;
   name: string;
@@ -59,7 +67,7 @@ export default function TeamDivisionPage() {
   const [numberOfTeams, setNumberOfTeams] = useState(2);
   const [balanceStrategy, setBalanceStrategy] = useState<BalanceStrategy>('BALANCED');
   const [isLoading, setIsLoading] = useState(false);
-  const [members, setMembers] = useState<any[]>([]);
+  const [members, setMembers] = useState<Member[]>([]);
   const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
 
   // Load members from API
@@ -97,7 +105,7 @@ export default function TeamDivisionPage() {
     setSelectedMembers(prev => prev.filter(id => id !== participant.id));
   };
 
-  const calculateMemberSkill = (member: any): number => {
+  const calculateMemberSkill = (member: Member): number => {
     // Simple skill calculation
     let baseSkill = 3;
     if (member.memberType === 'OFFICIAL') baseSkill += 0.5;

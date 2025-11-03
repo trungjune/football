@@ -96,8 +96,9 @@ export function FeeForm({ isOpen, onClose, onSuccess, fee }: FeeFormProps) {
 
       onSuccess();
       onClose();
-    } catch (error: any) {
-      setError(error.response?.data?.message || 'Có lỗi xảy ra, vui lòng thử lại');
+    } catch (error: unknown) {
+      const apiError = error as { response?: { data?: { message?: string } } };
+      setError(apiError.response?.data?.message || 'Có lỗi xảy ra, vui lòng thử lại');
     } finally {
       setIsLoading(false);
     }

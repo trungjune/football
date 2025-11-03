@@ -132,7 +132,7 @@ export function NotificationCenter() {
 
                       <div className="mt-2 flex items-center justify-between">
                         <p className="text-xs text-muted-foreground">
-                          {formatTime(notification.timestamp)}
+                          {formatTime(notification.timestamp || notification.createdAt)}
                         </p>
 
                         {notification.isBroadcast && (

@@ -3,6 +3,14 @@ import { authApi, LoginRequest } from '@/lib/api-client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 
+interface ApiError {
+  response?: {
+    data?: unknown;
+    status?: number;
+  };
+  message?: string;
+}
+
 // Login mutation
 export function useLogin() {
   const { login } = useAuth();
@@ -18,7 +26,7 @@ export function useLogin() {
       login(data.access_token, data.user);
       router.push('/dashboard');
     },
-    onError: (error: any) => {
+    onError: (error: ApiError) => {
       console.error('useLogin: Login failed with error:', error);
       console.error('useLogin: Error response:', error.response?.data);
       console.error('useLogin: Error status:', error.response?.status);
@@ -35,7 +43,7 @@ export function useRegister() {
     onSuccess: () => {
       router.push('/login?message=Đăng ký thành công! Vui lòng đăng nhập.');
     },
-    onError: (error: any) => {
+    onError: (error: ApiError) => {
       console.error('Register failed:', error);
     },
   });
@@ -81,7 +89,7 @@ export function useLogout() {
       queryClient.clear();
       router.push('/login');
     },
-    onError: (error: any) => {
+    onError: (error: ApiError) => {
       console.error('Logout failed:', error);
       // Even if API call fails, clear local data
       logout();

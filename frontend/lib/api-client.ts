@@ -169,8 +169,9 @@ export const authApi = {
 export const membersApi = {
   getAll: () => apiClient.get('/members').then(res => res.data),
   getById: (id: string) => apiClient.get(`/members/${id}`).then(res => res.data),
-  create: (data: any) => apiClient.post('/members', data).then(res => res.data),
-  update: (id: string, data: any) => apiClient.patch(`/members/${id}`, data).then(res => res.data),
+  create: (data: Record<string, unknown>) => apiClient.post('/members', data).then(res => res.data),
+  update: (id: string, data: Record<string, unknown>) =>
+    apiClient.patch(`/members/${id}`, data).then(res => res.data),
   delete: (id: string) => apiClient.delete(`/members/${id}`).then(res => res.data),
 };
 
@@ -178,8 +179,10 @@ export const membersApi = {
 export const sessionsApi = {
   getAll: () => apiClient.get('/sessions').then(res => res.data),
   getById: (id: string) => apiClient.get(`/sessions/${id}`).then(res => res.data),
-  create: (data: any) => apiClient.post('/sessions', data).then(res => res.data),
-  update: (id: string, data: any) => apiClient.patch(`/sessions/${id}`, data).then(res => res.data),
+  create: (data: Record<string, unknown>) =>
+    apiClient.post('/sessions', data).then(res => res.data),
+  update: (id: string, data: Record<string, unknown>) =>
+    apiClient.patch(`/sessions/${id}`, data).then(res => res.data),
   delete: (id: string) => apiClient.delete(`/sessions/${id}`).then(res => res.data),
 };
 
@@ -188,8 +191,10 @@ export const financeApi = {
   getFees: () => apiClient.get('/finance/fees').then(res => res.data),
   getPayments: () => apiClient.get('/finance/payments').then(res => res.data),
   getSummary: () => apiClient.get('/finance/summary').then(res => res.data),
-  createFee: (data: any) => apiClient.post('/finance/fees', data).then(res => res.data),
-  createPayment: (data: any) => apiClient.post('/finance/payments', data).then(res => res.data),
+  createFee: (data: Record<string, unknown>) =>
+    apiClient.post('/finance/fees', data).then(res => res.data),
+  createPayment: (data: Record<string, unknown>) =>
+    apiClient.post('/finance/payments', data).then(res => res.data),
 };
 
 // Statistics API
@@ -200,5 +205,6 @@ export const statisticsApi = {
 // Settings API
 export const settingsApi = {
   getSettings: () => apiClient.get('/settings').then(res => res.data),
-  updateSettings: (data: any) => apiClient.put('/settings', data).then(res => res.data),
+  updateSettings: (data: Record<string, unknown>) =>
+    apiClient.put('/settings', data).then(res => res.data),
 };

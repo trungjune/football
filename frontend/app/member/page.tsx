@@ -184,30 +184,38 @@ export default function MemberPage() {
                 {data.upcomingSessions.length === 0 ? (
                   <p className="text-sm text-muted-foreground">Chưa có buổi tập nào sắp tới</p>
                 ) : (
-                  data.upcomingSessions.map((session: any) => (
-                    <div
-                      key={session.id}
-                      className="flex items-center justify-between rounded-lg border p-3"
-                    >
-                      <div>
-                        <p className="font-medium">{session.title}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {new Date(session.datetime).toLocaleDateString('vi-VN', {
-                            weekday: 'long',
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit',
-                          })}
-                        </p>
-                        <p className="text-sm text-muted-foreground">{session.location}</p>
+                  data.upcomingSessions.map(
+                    (session: {
+                      id: string;
+                      title: string;
+                      datetime: string;
+                      location: string;
+                      registered: boolean;
+                    }) => (
+                      <div
+                        key={session.id}
+                        className="flex items-center justify-between rounded-lg border p-3"
+                      >
+                        <div>
+                          <p className="font-medium">{session.title}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {new Date(session.datetime).toLocaleDateString('vi-VN', {
+                              weekday: 'long',
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit',
+                            })}
+                          </p>
+                          <p className="text-sm text-muted-foreground">{session.location}</p>
+                        </div>
+                        <Button variant={session.registered ? 'secondary' : 'default'} size="sm">
+                          {session.registered ? 'Đã đăng ký' : 'Đăng ký'}
+                        </Button>
                       </div>
-                      <Button variant={session.registered ? 'secondary' : 'default'} size="sm">
-                        {session.registered ? 'Đã đăng ký' : 'Đăng ký'}
-                      </Button>
-                    </div>
-                  ))
+                    )
+                  )
                 )}
               </div>
             </CardContent>
@@ -224,28 +232,36 @@ export default function MemberPage() {
               {data.payments.recentPayments.length === 0 ? (
                 <p className="text-sm text-muted-foreground">Chưa có lịch sử thanh toán</p>
               ) : (
-                data.payments.recentPayments.map((payment: any) => (
-                  <div
-                    key={payment.id}
-                    className="flex items-center justify-between rounded-lg border p-3"
-                  >
-                    <div>
-                      <p className="font-medium">{payment.title}</p>
-                      <p className="text-sm text-muted-foreground">
-                        Thanh toán ngày {new Date(payment.paidAt).toLocaleDateString('vi-VN')}
-                      </p>
+                data.payments.recentPayments.map(
+                  (payment: {
+                    id: string;
+                    fee: { title: string };
+                    amount: number;
+                    paidAt: string;
+                    status: string;
+                  }) => (
+                    <div
+                      key={payment.id}
+                      className="flex items-center justify-between rounded-lg border p-3"
+                    >
+                      <div>
+                        <p className="font-medium">{payment.fee.title}</p>
+                        <p className="text-sm text-muted-foreground">
+                          Thanh toán ngày {new Date(payment.paidAt).toLocaleDateString('vi-VN')}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-medium text-green-600">
+                          {new Intl.NumberFormat('vi-VN', {
+                            style: 'currency',
+                            currency: 'VND',
+                          }).format(payment.amount)}
+                        </p>
+                        <p className="text-xs text-muted-foreground">Đã thanh toán</p>
+                      </div>
                     </div>
-                    <div className="text-right">
-                      <p className="font-medium text-green-600">
-                        {new Intl.NumberFormat('vi-VN', {
-                          style: 'currency',
-                          currency: 'VND',
-                        }).format(payment.amount)}
-                      </p>
-                      <p className="text-xs text-muted-foreground">Đã thanh toán</p>
-                    </div>
-                  </div>
-                ))
+                  )
+                )
               )}
             </div>
           </CardContent>

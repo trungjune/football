@@ -159,7 +159,7 @@ class WebSocketService {
     }
   }
 
-  private emit(event: string, data: any) {
+  private emit(event: string, data: unknown) {
     if (!this.eventListeners[event]) return;
 
     this.eventListeners[event].forEach(callback => {

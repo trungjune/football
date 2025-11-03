@@ -72,8 +72,8 @@ export default function SignUpPage() {
       setTimeout(() => {
         router.push('/auth/signin');
       }, 2000);
-    } catch (error: any) {
-      setError(error.message || 'Có lỗi xảy ra, vui lòng thử lại');
+    } catch (error: unknown) {
+      setError((error as Error).message || 'Có lỗi xảy ra, vui lòng thử lại');
     } finally {
       setIsLoading(false);
     }

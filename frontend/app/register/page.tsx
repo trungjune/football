@@ -26,7 +26,8 @@ export default function RegisterPage() {
         <form className="mt-8 space-y-6" onSubmit={handleRegister}>
           {registerMutation.error && (
             <div className="rounded border border-red-400 bg-red-100 px-4 py-3 text-red-700">
-              {(registerMutation.error as any)?.response?.data?.message || 'Đăng ký thất bại'}
+              {(registerMutation.error as { response?: { data?: { message?: string } } })?.response
+                ?.data?.message || 'Đăng ký thất bại'}
             </div>
           )}
 

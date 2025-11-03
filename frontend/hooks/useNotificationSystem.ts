@@ -1,9 +1,33 @@
 import { useWebSocketEvent } from '@/hooks/useWebSocket';
 import { toast } from '@/hooks/useToast';
 
+interface SessionRegistrationData {
+  type: 'registration';
+  member: {
+    fullName: string;
+  };
+}
+
+interface AttendanceUpdateData {
+  status: 'PRESENT' | 'ABSENT' | 'LATE';
+  member: {
+    fullName: string;
+  };
+}
+
+interface PaymentUpdateData {
+  message?: string;
+}
+
+interface NotificationData {
+  title?: string;
+  message?: string;
+  content?: string;
+}
+
 export function useNotificationSystem() {
   // Session notifications
-  useWebSocketEvent('sessionRegistrationUpdate', (data: any) => {
+  useWebSocketEvent<SessionRegistrationData>('sessionRegistrationUpdate', data => {
     if (data.type === 'registration') {
       toast({
         title: 'Đăng ký mới',
@@ -19,7 +43,7 @@ export function useNotificationSystem() {
     });
   });
 
-  useWebSocketEvent('attendanceUpdate', (data: any) => {
+  useWebSocketEvent<AttendanceUpdateData>('attendanceUpdate', data => {
     const statusText =
       data.status === 'PRESENT' ? 'có mặt' : data.status === 'ABSENT' ? 'vắng mặt' : 'đến muộn';
 
@@ -30,7 +54,7 @@ export function useNotificationSystem() {
   });
 
   // Payment notifications
-  useWebSocketEvent('paymentUpdate', (data: any) => {
+  useWebSocketEvent<PaymentUpdateData>('paymentUpdate', data => {
     toast({
       title: 'Cập nhật thanh toán',
       description: data.message || 'Có cập nhật về thanh toán của bạn',
@@ -61,14 +85,14 @@ export function useNotificationSystem() {
   });
 
   // General notifications
-  useWebSocketEvent('notification', (data: any) => {
+  useWebSocketEvent<NotificationData>('notification', data => {
     toast({
       title: data.title || 'Thông báo',
       description: data.message || data.content,
     });
   });
 
-  useWebSocketEvent('broadcastNotification', (data: unknown) => {
+  useWebSocketEvent<NotificationData>('broadcastNotification', data => {
     toast({
       title: data.title || 'Thông báo chung',
       description: data.message || data.content,
