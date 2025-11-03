@@ -1,11 +1,21 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+  Inject,
+  Optional,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateSessionDto, UpdateSessionDto, SessionSearchDto } from './dto/session.dto';
+import { FootballWebSocketGateway } from '../websocket/websocket.gateway';
 // AttendanceStatus enum replaced with string literal
 
 @Injectable()
 export class SessionsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    @Optional() @Inject('WebSocketGateway') private websocketGateway?: FootballWebSocketGateway,
+  ) {}
 
   async create(createSessionDto: CreateSessionDto, teamId: string) {
     const { registrationDeadline, datetime, ...sessionData } = createSessionDto;

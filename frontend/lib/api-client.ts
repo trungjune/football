@@ -191,3 +191,14 @@ export const financeApi = {
   createFee: (data: any) => apiClient.post('/finance/fees', data).then(res => res.data),
   createPayment: (data: any) => apiClient.post('/finance/payments', data).then(res => res.data),
 };
+
+// Statistics API
+export const statisticsApi = {
+  getStats: () => apiClient.get('/statistics').then(res => res.data),
+};
+
+// Settings API
+export const settingsApi = {
+  getSettings: () => apiClient.get('/settings').then(res => res.data),
+  updateSettings: (data: any) => apiClient.put('/settings', data).then(res => res.data),
+};
