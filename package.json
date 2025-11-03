@@ -10,6 +10,7 @@
     "backend:format": "cd backend && npm run format",
     "frontend:build": "cd frontend && npm run build",
     "build": "npm run backend:build && npm run frontend:build",
+    "postinstall": "cd backend && npx prisma generate",
     "install:all": "npm install && cd backend && npm install && cd ../frontend && npm install",
     "deploy": "vercel --prod",
     "deploy:preview": "vercel"
