@@ -21,6 +21,21 @@ import { AuthenticatedRequest } from '../types/express.types';
 export class AuthController {
   constructor(private authService: AuthService) {}
 
+  @ApiOperation({ summary: 'Test auth endpoint' })
+  @ApiResponse({ status: 200, description: 'Auth endpoint is working' })
+  @Get('test')
+  async testAuth() {
+    return {
+      message: 'Auth API is working!',
+      timestamp: new Date().toISOString(),
+      endpoints: {
+        login: 'POST /api/auth/login',
+        register: 'POST /api/auth/register',
+        profile: 'GET /api/auth/profile (requires JWT)',
+      },
+    };
+  }
+
   @ApiOperation({ summary: 'User login' })
   @ApiResponse({ status: 200, description: 'Login successful' })
   @ApiResponse({ status: 401, description: 'Invalid credentials' })
