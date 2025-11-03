@@ -3,8 +3,15 @@ import { Request } from 'express';
 export interface AuthenticatedUser {
   id: string;
   email: string;
-  name: string;
   role: string;
+  createdAt: Date;
+  updatedAt: Date;
+  phone: string;
+  image: string;
+  member?: {
+    id: string;
+    fullName: string;
+  } | null;
 }
 
 export interface AuthenticatedRequest extends Request {

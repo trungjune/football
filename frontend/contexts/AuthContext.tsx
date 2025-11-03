@@ -27,20 +27,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     // Check for stored auth data on mount
-    const storedToken = localStorage.getItem('token');
-    const storedUser = localStorage.getItem('user');
+    try {
+      const storedToken = localStorage.getItem('token');
+      const storedUser = localStorage.getItem('user');
 
-    if (storedToken && storedUser && storedUser !== 'undefined') {
-      try {
-        setToken(storedToken);
-        setUser(JSON.parse(storedUser));
-      } catch (error) {
-        console.error('Lỗi parse dữ liệu user từ localStorage:', error);
-        // Xóa dữ liệu không hợp lệ
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
+      console.log('AuthContext: Checking localStorage', {
+        hasToken: !!storedToken,
+        hasUser: !!storedUser,
+        userValue: storedUser,
+      });
+
+      if (storedToken && storedUser && storedUser !== 'undefined') {
+        try {
+          const parsedUser = JSON.parse(storedUser);
+          console.log('AuthContext: Setting user from localStorage', parsedUser);
+          setToken(storedToken);
+          setUser(parsedUser);
+        } catch (error) {
+          console.error('Lỗi parse dữ liệu user từ localStorage:', error);
+          // Xóa dữ liệu không hợp lệ
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+        }
+      } else {
+        console.log('AuthContext: No valid auth data in localStorage');
       }
+    } catch (error) {
+      console.error('AuthContext: Error accessing localStorage:', error);
     }
+
     setLoading(false);
   }, []);
 

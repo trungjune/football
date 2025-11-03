@@ -11,7 +11,7 @@ export interface JwtPayload {
 }
 
 export interface AuthResponse {
-  user: Omit<User, 'password'>;
+  user: ValidatedUser;
   access_token: string;
 }
 
@@ -19,9 +19,13 @@ export interface ValidatedUser {
   id: string;
   email: string;
   role: string;
+  createdAt: Date;
+  updatedAt: Date;
+  phone: string;
+  image: string;
   member?: {
     id: string;
-    name: string;
+    fullName: string;
   } | null;
 }
 
@@ -43,8 +47,8 @@ export class AuthService {
 
       if (user && user.password && (await bcrypt.compare(password, user.password))) {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { password: _, ...result } = user;
-        return result;
+        const { password: _, ...userWithoutPassword } = user;
+        return userWithoutPassword as ValidatedUser;
       }
 
       return null;
