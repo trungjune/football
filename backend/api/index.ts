@@ -85,17 +85,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return;
     }
 
-    const app = await createNestApp();
-    const httpAdapter = app.getHttpAdapter();
-    const instance = httpAdapter.getInstance();
+    // Temporarily disable NestJS to test handler
+    const path = (req.query.path as string) || req.url || '/';
 
-    // Handle path from Vercel routing
-    const path = req.query.path as string;
-    if (path) {
-      req.url = `/${path}`;
-    }
-
-    return instance(req, res);
+    return res.status(200).json({
+      message: 'Backend API handler is working',
+      path: path,
+      method: req.method,
+      timestamp: new Date().toISOString(),
+      query: req.query,
+      note: 'NestJS app temporarily disabled for debugging',
+    });
   } catch (error) {
     console.error('Handler error:', error);
 
