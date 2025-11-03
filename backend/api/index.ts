@@ -78,17 +78,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     // Add request logging
     console.log(`${req.method} ${req.url}`);
-    console.log('Headers:', req.headers);
+    console.log('Query:', req.query);
 
     const app = await createApp();
     const httpAdapter = app.getHttpAdapter();
     const instance = httpAdapter.getInstance();
 
-    // Vercel strips /api from the path, so we need to add it back
-    const originalUrl = req.url;
-    req.url = originalUrl?.startsWith('/') ? originalUrl : `/${originalUrl}`;
+    // Get the path from query parameter (set by Vercel routing)
+    const path = req.query.path as string;
+    if (path) {
+      req.url = `/${path}`;
+    } else {
+      req.url = req.url || '/';
+    }
 
-    console.log('Modified URL:', req.url);
+    console.log('Final URL:', req.url);
 
     // Handle the request
     return instance(req, res);

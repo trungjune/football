@@ -1,5 +1,10 @@
 {
   "version": 2,
+  "functions": {
+    "backend/api/index.ts": {
+      "maxDuration": 30
+    }
+  },
   "builds": [
     {
       "src": "backend/api/index.ts",
@@ -11,8 +16,7 @@
           "backend/node_modules/.prisma/**",
           "backend/node_modules/@prisma/**",
           "backend/src/**"
-        ],
-        "maxLambdaSize": "50mb"
+        ]
       }
     },
     {
@@ -23,7 +27,7 @@
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "/backend/api/index.ts"
+      "dest": "/backend/api/index.ts?path=$1"
     },
     {
       "src": "/(.*)",
