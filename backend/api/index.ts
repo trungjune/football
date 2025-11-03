@@ -25,15 +25,13 @@ async function createNestApp() {
       );
       app.use(compression());
 
-      // CORS configuration
+      // CORS configuration - Allow all origins for now
       app.enableCors({
-        origin:
-          process.env.NODE_ENV === 'production'
-            ? ['https://football-team-manager-pi.vercel.app', /\.vercel\.app$/]
-            : true, // Allow all origins in development
+        origin: true, // Allow all origins including null (file://)
         credentials: true,
         methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
         allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin', 'X-Requested-With'],
+        optionsSuccessStatus: 200, // For legacy browser support
       });
 
       // Global validation pipe
@@ -72,6 +70,21 @@ async function createNestApp() {
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
+    // Add CORS headers manually for all requests
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+    res.setHeader(
+      'Access-Control-Allow-Headers',
+      'Content-Type, Authorization, Accept, Origin, X-Requested-With',
+    );
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+
+    // Handle preflight requests
+    if (req.method === 'OPTIONS') {
+      res.status(200).end();
+      return;
+    }
+
     const app = await createNestApp();
     const httpAdapter = app.getHttpAdapter();
     const instance = httpAdapter.getInstance();
