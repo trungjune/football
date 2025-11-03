@@ -66,3 +66,27 @@ export function useUpdateProfile() {
     },
   });
 }
+
+// Logout mutation
+export function useLogout() {
+  const { logout } = useAuth();
+  const router = useRouter();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: authApi.logout,
+    onSuccess: () => {
+      // Clear all data
+      logout();
+      queryClient.clear();
+      router.push('/login');
+    },
+    onError: (error: any) => {
+      console.error('Logout failed:', error);
+      // Even if API call fails, clear local data
+      logout();
+      queryClient.clear();
+      router.push('/login');
+    },
+  });
+}

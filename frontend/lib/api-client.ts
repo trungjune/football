@@ -41,10 +41,16 @@ apiClient.interceptors.response.use(
 
       // Only redirect if user was already logged in (has token)
       if (token) {
-        console.log('Token expired, redirecting to login');
+        console.log('Token expired, clearing session and redirecting to login');
         localStorage.removeItem('token');
         localStorage.removeItem('user');
-        window.location.href = '/login';
+
+        // Show notification if possible
+        if (typeof window !== 'undefined' && window.location.pathname !== '/login') {
+          alert('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
+        }
+
+        window.location.href = '/login?message=Phiên đăng nhập đã hết hạn';
       } else {
         console.log('Login failed - no redirect needed');
       }
@@ -155,6 +161,8 @@ export const authApi = {
 
   updateProfile: (data: Partial<User>): Promise<User> =>
     apiClient.put('/auth/profile', data).then(res => res.data),
+
+  logout: (): Promise<{ message: string }> => apiClient.post('/auth/logout').then(res => res.data),
 };
 
 // Members API

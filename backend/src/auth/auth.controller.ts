@@ -77,4 +77,16 @@ export class AuthController {
     );
     return { message: 'Password changed successfully' };
   }
+
+  @ApiOperation({ summary: 'Logout user' })
+  @ApiResponse({ status: 200, description: 'Logout successful' })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Post('logout')
+  @HttpCode(HttpStatus.OK)
+  async logout(@Request() req: AuthenticatedRequest) {
+    // In a stateless JWT system, logout is handled client-side
+    // But we can log the action for audit purposes
+    return { message: 'Logout successful' };
+  }
 }

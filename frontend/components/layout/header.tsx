@@ -1,6 +1,7 @@
 'use client';
 
 import { useAuth } from '@/contexts/AuthContext';
+import { useLogout } from '@/hooks/use-auth';
 import { Button } from '@/components/ui/button';
 import { LogOut, Moon, Sun } from 'lucide-react';
 import { useTheme } from 'next-themes';
@@ -9,11 +10,12 @@ import { NotificationCenter } from '@/components/notifications/notification-cent
 import { MobileNav } from './mobile-nav';
 
 export function Header() {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const { theme, setTheme } = useTheme();
+  const logoutMutation = useLogout();
 
   const handleSignOut = () => {
-    logout();
+    logoutMutation.mutate();
   };
 
   const toggleTheme = () => {
@@ -36,9 +38,9 @@ export function Header() {
 
         <NotificationCenter />
 
-        <Button variant="ghost" onClick={handleSignOut}>
+        <Button variant="ghost" onClick={handleSignOut} disabled={logoutMutation.isPending}>
           <LogOut className="mr-2 h-4 w-4" />
-          Đăng xuất
+          {logoutMutation.isPending ? 'Đang đăng xuất...' : 'Đăng xuất'}
         </Button>
       </div>
     </header>
