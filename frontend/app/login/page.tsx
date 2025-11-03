@@ -107,9 +107,9 @@ export default function LoginPage() {
             <p className="text-xs text-gray-500">
               <strong>Tài khoản demo:</strong>
               <br />
-              Admin: admin@football.com / password123
+              Admin: admin@football.com / admin123
               <br />
-              Member: nguyen.huu.phuc.truong@gmail.com / password123
+              Member: nguyen.huu.phuc.fcvuive@gmail.com / admin123
             </p>
           </div>
         </form>
