@@ -1,11 +1,15 @@
 import axios from 'axios';
 
+// Debug environment
+console.log('NODE_ENV:', process.env.NODE_ENV);
+console.log(
+  'API baseURL will be:',
+  process.env.NODE_ENV === 'production' ? 'https://football-team-manager-pi.vercel.app/api' : '/api'
+);
+
 // Create axios instance
 export const apiClient = axios.create({
-  baseURL:
-    process.env.NODE_ENV === 'production'
-      ? 'https://football-team-manager-pi.vercel.app/api'
-      : '/api',
+  baseURL: 'https://football-team-manager-pi.vercel.app/api', // Force production URL
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
@@ -122,8 +126,18 @@ export interface Payment {
 
 // Auth API functions
 export const authApi = {
-  login: (data: LoginRequest): Promise<AuthResponse> =>
-    apiClient.post('/auth/login', data).then(res => res.data),
+  login: async (data: LoginRequest): Promise<AuthResponse> => {
+    console.log('Login request:', data);
+    console.log('API baseURL:', apiClient.defaults.baseURL);
+    try {
+      const response = await apiClient.post('/auth/login', data);
+      console.log('Login response:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('Login error:', error);
+      throw error;
+    }
+  },
 
   register: (data: RegisterRequest): Promise<AuthResponse> =>
     apiClient.post('/auth/register', data).then(res => res.data),
