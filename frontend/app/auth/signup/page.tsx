@@ -51,22 +51,30 @@ export default function SignUpPage() {
     }
 
     try {
-      await api.post('/auth/register', {
-        email: formData.email,
-        password: formData.password,
-        fullName: formData.fullName,
-        nickname: formData.nickname || undefined,
-        phone: formData.phone || undefined,
-        position: formData.position,
-        dateOfBirth: formData.dateOfBirth || undefined,
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+          phone: formData.phone || undefined,
+        }),
       });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Đăng ký thất bại');
+      }
 
       setSuccess('Đăng ký thành công! Vui lòng đăng nhập.');
       setTimeout(() => {
         router.push('/auth/signin');
       }, 2000);
     } catch (error: any) {
-      setError(error.response?.data?.message || 'Có lỗi xảy ra, vui lòng thử lại');
+      setError(error.message || 'Có lỗi xảy ra, vui lòng thử lại');
     } finally {
       setIsLoading(false);
     }

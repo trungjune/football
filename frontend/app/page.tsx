@@ -1,18 +1,32 @@
-import { redirect } from 'next/navigation';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+'use client';
 
-export default async function HomePage() {
-  const session = await getServerSession(authOptions);
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/contexts/AuthContext';
 
-  if (!session) {
-    redirect('/auth/signin');
+export default function HomePage() {
+  const { user, loading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!loading) {
+      if (!user) {
+        router.push('/login');
+      } else if (user.role === 'ADMIN') {
+        router.push('/dashboard');
+      } else {
+        router.push('/member');
+      }
+    }
+  }, [user, loading, router]);
+
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="h-32 w-32 animate-spin rounded-full border-b-2 border-indigo-600"></div>
+      </div>
+    );
   }
 
-  // Redirect based on role
-  if (session.user.role === 'ADMIN') {
-    redirect('/dashboard');
-  } else {
-    redirect('/member');
-  }
+  return null;
 }

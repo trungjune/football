@@ -22,5 +22,13 @@
       "@/shared/*": ["../shared/*"]
     }
   },
-  "exclude": ["**/*.spec.ts", "**/*.test.ts", "test/**/*"]
+  "include": ["src/**/*", "prisma/seed.ts"],
+  "exclude": [
+    "**/*.spec.ts",
+    "**/*.test.ts",
+    "test/**/*",
+    "dist/**/*",
+    "node_modules/**/*",
+    "api/**/*"
+  ]
 }

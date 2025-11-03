@@ -1,10 +1,5 @@
 {
   "version": 2,
-  "functions": {
-    "backend/api/index.ts": {
-      "maxDuration": 30
-    }
-  },
   "builds": [
     {
       "src": "backend/api/index.ts",
@@ -16,7 +11,8 @@
           "backend/node_modules/.prisma/**",
           "backend/node_modules/@prisma/**",
           "backend/src/**"
-        ]
+        ],
+        "maxLambdaSize": "50mb"
       }
     },
     {
@@ -35,6 +31,7 @@
     }
   ],
   "buildCommand": "npm run install:all && cd backend && npx prisma generate && npm run build",
+  "installCommand": "npm ci",
   "env": {
     "DATABASE_URL": "postgres://postgres.atmpfhxwtfkwygkvduzh:biu74dj2MRtT3t1q@aws-1-ap-southeast-1.pooler.supabase.com:5432/postgres?sslmode=require",
     "SUPABASE_JWT_SECRET": "ClxHKWChQzAgFLrhCkS8fXmZKfAV7lDsFGiLSGyoI+FbI5mssgKKI7CV6OtD88zArNvVU1Q8QrnltfvJvPGd5w==",

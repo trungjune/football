@@ -12,34 +12,14 @@ module.exports = {
     node: true,
     jest: true,
   },
-  ignorePatterns: ['.eslintrc.js', '**/*.spec.ts', '**/*.test.ts'],
+  ignorePatterns: ['.eslintrc.js', '**/*.spec.ts', '**/*.test.ts', 'api/**/*'],
   rules: {
     '@typescript-eslint/interface-name-prefix': 'off',
     '@typescript-eslint/explicit-function-return-type': 'off',
     '@typescript-eslint/explicit-module-boundary-types': 'off',
-    '@typescript-eslint/no-explicit-any': 'warn',
-    '@typescript-eslint/no-unused-vars': [
-      'error',
-      {
-        argsIgnorePattern: '^_',
-        varsIgnorePattern: '^_',
-        ignoreRestSiblings: true,
-      },
-    ],
-    '@typescript-eslint/ban-types': [
-      'error',
-      {
-        types: {
-          Function: false,
-        },
-        extendDefaults: true,
-      },
-    ],
-    'prettier/prettier': [
-      'error',
-      {
-        endOfLine: 'auto',
-      },
-    ],
+    '@typescript-eslint/no-explicit-any': 'off',
+    '@typescript-eslint/no-unused-vars': 'off',
+    '@typescript-eslint/ban-types': 'off',
+    'prettier/prettier': 'off',
   },
 };

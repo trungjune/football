@@ -10,7 +10,7 @@ import {
   IsNotEmpty,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { SessionType, AttendanceStatus } from '@prisma/client';
+// Using string literals instead of Prisma enums
 
 export class CreateSessionDto {
   @ApiProperty({ example: 'Buổi tập thứ 7' })
@@ -32,9 +32,9 @@ export class CreateSessionDto {
   @IsNotEmpty({ message: 'Địa điểm không được để trống' })
   location: string;
 
-  @ApiProperty({ enum: SessionType, example: SessionType.TRAINING })
-  @IsEnum(SessionType, { message: 'Loại buổi tập không hợp lệ' })
-  type: SessionType;
+  @ApiProperty({ enum: ['TRAINING', 'FRIENDLY_MATCH', 'TOURNAMENT'], example: 'TRAINING' })
+  @IsEnum(['TRAINING', 'FRIENDLY_MATCH', 'TOURNAMENT'], { message: 'Loại buổi tập không hợp lệ' })
+  type: 'TRAINING' | 'FRIENDLY_MATCH' | 'TOURNAMENT';
 
   @ApiProperty({ example: 14, required: false })
   @IsOptional()
@@ -57,10 +57,10 @@ export class SessionSearchDto {
   @IsString()
   search?: string;
 
-  @ApiProperty({ enum: SessionType, required: false })
+  @ApiProperty({ enum: ['TRAINING', 'FRIENDLY_MATCH', 'TOURNAMENT'], required: false })
   @IsOptional()
-  @IsEnum(SessionType)
-  type?: SessionType;
+  @IsEnum(['TRAINING', 'FRIENDLY_MATCH', 'TOURNAMENT'])
+  type?: 'TRAINING' | 'FRIENDLY_MATCH' | 'TOURNAMENT';
 
   @ApiProperty({ required: false })
   @IsOptional()
@@ -99,9 +99,9 @@ export class SessionSearchDto {
 }
 
 export class MarkAttendanceDto {
-  @ApiProperty({ enum: AttendanceStatus, example: AttendanceStatus.PRESENT })
-  @IsEnum(AttendanceStatus, { message: 'Trạng thái điểm danh không hợp lệ' })
-  status: AttendanceStatus;
+  @ApiProperty({ enum: ['PRESENT', 'ABSENT', 'LATE'], example: 'PRESENT' })
+  @IsEnum(['PRESENT', 'ABSENT', 'LATE'], { message: 'Trạng thái điểm danh không hợp lệ' })
+  status: 'PRESENT' | 'ABSENT' | 'LATE';
 
   @ApiProperty({ example: 'Đi muộn do kẹt xe', required: false })
   @IsOptional()

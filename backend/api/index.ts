@@ -8,29 +8,32 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 
 let app: any;
 
-async function createApp() {
+async function createNestApp() {
   if (!app) {
     try {
-      console.log('Creating NestJS app...');
       app = await NestFactory.create(AppModule, {
-        logger: ['error', 'warn', 'log'],
+        logger:
+          process.env.NODE_ENV === 'production' ? ['error', 'warn'] : ['error', 'warn', 'log'],
       });
 
       // Security middleware
       app.use(
         helmet({
-          contentSecurityPolicy: false, // Disable for API
+          contentSecurityPolicy: false,
+          crossOriginEmbedderPolicy: false,
         }),
       );
       app.use(compression());
 
-      // CORS configuration - Allow all origins for testing
+      // CORS configuration
       app.enableCors({
-        origin: true, // Allow all origins
+        origin:
+          process.env.NODE_ENV === 'production'
+            ? ['https://football-team-manager-pi.vercel.app', /\.vercel\.app$/]
+            : true, // Allow all origins in development
         credentials: true,
         methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
         allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin', 'X-Requested-With'],
-        exposedHeaders: ['Content-Length', 'X-Foo', 'X-Bar'],
       });
 
       // Global validation pipe
@@ -45,9 +48,7 @@ async function createApp() {
         }),
       );
 
-      // Don't set global prefix since Vercel strips /api from the path
-
-      // Swagger setup (only in development)
+      // Swagger documentation (development only)
       if (process.env.NODE_ENV !== 'production') {
         const config = new DocumentBuilder()
           .setTitle('Football Team Management API')
@@ -61,9 +62,8 @@ async function createApp() {
       }
 
       await app.init();
-      console.log('NestJS app initialized successfully');
     } catch (error) {
-      console.error('Error creating NestJS app:', error);
+      console.error('Failed to create NestJS app:', error);
       throw error;
     }
   }
@@ -72,29 +72,19 @@ async function createApp() {
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
-    // Add request logging
-    console.log(`${req.method} ${req.url}`);
-    console.log('Query:', req.query);
-
-    const app = await createApp();
+    const app = await createNestApp();
     const httpAdapter = app.getHttpAdapter();
     const instance = httpAdapter.getInstance();
 
-    // Get the path from query parameter (set by Vercel routing)
+    // Handle path from Vercel routing
     const path = req.query.path as string;
     if (path) {
       req.url = `/${path}`;
-    } else {
-      req.url = req.url || '/';
     }
 
-    console.log('Final URL:', req.url);
-
-    // Handle the request
     return instance(req, res);
   } catch (error) {
-    console.error('Error in Vercel handler:', error);
-    console.error('Stack trace:', error.stack);
+    console.error('Handler error:', error);
 
     return res.status(500).json({
       error: 'Internal Server Error',

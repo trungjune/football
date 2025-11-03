@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateFeeDto, UpdateFeeDto, CreatePaymentDto, FinanceSearchDto } from './dto/finance.dto';
-import { FeeType, PaymentMethod, PaymentStatus } from '@prisma/client';
+// Finance enums replaced with string literals
 import { PdfExportService } from './pdf-export.service';
 
 @Injectable()
@@ -121,11 +121,9 @@ export class FinanceService {
     // Calculate payment statistics for each fee
     const feesWithStats = fees.map(fee => {
       const totalPayments = fee.payments.length;
-      const completedPayments = fee.payments.filter(
-        p => p.status === PaymentStatus.COMPLETED,
-      ).length;
+      const completedPayments = fee.payments.filter(p => p.status === 'COMPLETED').length;
       const totalAmount = fee.payments
-        .filter(p => p.status === PaymentStatus.COMPLETED)
+        .filter(p => p.status === 'COMPLETED')
         .reduce((sum, p) => sum + p.amount, 0);
 
       return {
@@ -264,7 +262,7 @@ export class FinanceService {
         memberId,
         amount,
         method,
-        status: PaymentStatus.COMPLETED,
+        status: 'COMPLETED',
         paidAt: new Date(),
       },
       include: {
@@ -358,7 +356,7 @@ export class FinanceService {
     };
   }
 
-  async updatePaymentStatus(id: string, status: PaymentStatus) {
+  async updatePaymentStatus(id: string, status: 'PENDING' | 'COMPLETED' | 'FAILED') {
     const payment = await this.prisma.payment.findUnique({
       where: { id },
     });
@@ -371,7 +369,7 @@ export class FinanceService {
       where: { id },
       data: {
         status,
-        paidAt: status === PaymentStatus.COMPLETED ? new Date() : null,
+        paidAt: status === 'COMPLETED' ? new Date() : null,
       },
       include: {
         fee: true,
@@ -413,14 +411,14 @@ export class FinanceService {
         include: {
           payments: {
             where: {
-              status: PaymentStatus.COMPLETED,
+              status: 'COMPLETED',
             },
           },
         },
       }),
       this.prisma.payment.findMany({
         where: {
-          status: PaymentStatus.COMPLETED,
+          status: 'COMPLETED',
           fee: where,
         },
       }),
@@ -443,7 +441,7 @@ export class FinanceService {
         acc[fee.type].actualAmount += fee.payments.reduce((sum, p) => sum + p.amount, 0);
         return acc;
       },
-      {} as Record<FeeType, any>,
+      {} as Record<'MONTHLY' | 'SPECIAL', any>,
     );
 
     const paymentMethodBreakdown = payments.reduce(
@@ -458,7 +456,7 @@ export class FinanceService {
         acc[payment.method].amount += payment.amount;
         return acc;
       },
-      {} as Record<PaymentMethod, any>,
+      {} as Record<'CASH' | 'BANK_TRANSFER', any>,
     );
 
     return {
@@ -488,7 +486,7 @@ export class FinanceService {
       include: {
         payments: {
           where: {
-            status: PaymentStatus.COMPLETED,
+            status: 'COMPLETED',
           },
           include: {
             member: {

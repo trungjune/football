@@ -7,8 +7,8 @@ import {
 } from '@nestjs/common';
 import { validate } from 'class-validator';
 import { plainToInstance } from 'class-transformer';
-import * as DOMPurify from 'isomorphic-dompurify';
 import { SecurityService } from '../services/security.service';
+import { SanitizerUtil } from '../utils/sanitizer.util';
 
 @Injectable()
 export class ValidationPipe implements PipeTransform<any> {
@@ -52,11 +52,8 @@ export class ValidationPipe implements PipeTransform<any> {
       // Use security service for comprehensive sanitization
       const sanitized = this.securityService.sanitizeInput(value);
 
-      // Additional DOMPurify sanitization
-      return DOMPurify.sanitize(sanitized, {
-        ALLOWED_TAGS: [],
-        ALLOWED_ATTR: [],
-      });
+      // Additional sanitization using our utility
+      return SanitizerUtil.sanitizeInput(sanitized);
     }
 
     if (Array.isArray(value)) {
@@ -75,21 +72,7 @@ export class ValidationPipe implements PipeTransform<any> {
   }
 
   private sanitizeSqlInjection(input: string): string {
-    // Remove common SQL injection patterns
-    const sqlPatterns = [
-      /(\b(SELECT|INSERT|UPDATE|DELETE|DROP|CREATE|ALTER|EXEC|UNION|SCRIPT)\b)/gi,
-      /(\b(OR|AND)\s+\d+\s*=\s*\d+)/gi,
-      /(--|\/\*|\*\/|;)/g,
-      /(\b(EXEC|EXECUTE)\s*\()/gi,
-      /(\b(SP_|XP_)\w+)/gi,
-    ];
-
-    let sanitized = input;
-    sqlPatterns.forEach(pattern => {
-      sanitized = sanitized.replace(pattern, '');
-    });
-
-    return sanitized.trim();
+    return SanitizerUtil.sanitizeSql(input);
   }
 }
 

@@ -29,8 +29,9 @@ export class SecurityMiddleware implements NestMiddleware {
         return req.path === '/health' || req.path === '/api/health';
       },
       keyGenerator: (req: Request) => {
-        // Use IP address and user ID if available
-        const ip = req.ip || req.socket.remoteAddress;
+        // Use proper IP handling for IPv6
+        const forwarded = req.headers['x-forwarded-for'] as string;
+        const ip = forwarded ? forwarded.split(',')[0].trim() : req.connection.remoteAddress;
         const userId = (req as any).user?.id || 'anonymous';
         return `${ip}:${userId}`;
       },

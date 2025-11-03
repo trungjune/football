@@ -323,4 +323,145 @@ export class MembersService {
       },
     });
   }
+
+  async getMemberProfile(userId: string) {
+    // Get member profile
+    const member = await this.prisma.member.findUnique({
+      where: { userId },
+      include: {
+        user: {
+          select: {
+            id: true,
+            email: true,
+            phone: true,
+            role: true,
+          },
+        },
+      },
+    });
+
+    if (!member) {
+      throw new NotFoundException('Member profile not found');
+    }
+
+    // Get upcoming sessions (next 7 days)
+    const upcomingSessions = await this.prisma.trainingSession.findMany({
+      where: {
+        datetime: {
+          gte: new Date(),
+          lte: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+        },
+      },
+      include: {
+        registrations: {
+          where: { memberId: member.id },
+          select: { id: true },
+        },
+      },
+      orderBy: { datetime: 'asc' },
+      take: 5,
+    });
+
+    // Get payment statistics
+    const payments = await this.prisma.payment.findMany({
+      where: { memberId: member.id },
+      include: {
+        fee: {
+          select: {
+            title: true,
+            amount: true,
+          },
+        },
+      },
+      orderBy: { paidAt: 'desc' },
+    });
+
+    const totalPaid = payments
+      .filter(p => p.status === 'COMPLETED')
+      .reduce((sum, p) => sum + p.amount, 0);
+
+    // Get unpaid fees
+    const unpaidFees = await this.prisma.fee.findMany({
+      where: {
+        payments: {
+          none: {
+            memberId: member.id,
+            status: 'COMPLETED',
+          },
+        },
+        dueDate: {
+          gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), // Last 30 days
+        },
+      },
+    });
+
+    const totalOwed = unpaidFees.reduce((sum, fee) => sum + fee.amount, 0);
+
+    // Get attendance statistics
+    const thisMonth = new Date();
+    thisMonth.setDate(1);
+    thisMonth.setHours(0, 0, 0, 0);
+
+    const attendanceThisMonth = await this.prisma.attendance.count({
+      where: {
+        memberId: member.id,
+        status: 'PRESENT',
+        session: {
+          datetime: {
+            gte: thisMonth,
+          },
+        },
+      },
+    });
+
+    const totalAttendance = await this.prisma.attendance.count({
+      where: {
+        memberId: member.id,
+        status: 'PRESENT',
+      },
+    });
+
+    const totalSessions = await this.prisma.registration.count({
+      where: {
+        memberId: member.id,
+      },
+    });
+
+    const attendanceRate =
+      totalSessions > 0 ? Math.round((totalAttendance / totalSessions) * 100) : 0;
+
+    return {
+      profile: {
+        fullName: member.fullName,
+        position: member.position,
+        memberType: member.memberType,
+        joinDate: member.createdAt,
+      },
+      upcomingSessions: upcomingSessions.map(session => ({
+        id: session.id,
+        title: session.title,
+        datetime: session.datetime,
+        location: session.location,
+        registered: session.registrations.length > 0,
+      })),
+      payments: {
+        totalPaid,
+        totalOwed,
+        recentPayments: payments
+          .filter(p => p.status === 'COMPLETED')
+          .slice(0, 5)
+          .map(p => ({
+            id: p.id,
+            title: p.fee.title,
+            amount: p.amount,
+            paidAt: p.paidAt,
+          })),
+      },
+      attendance: {
+        thisMonth: attendanceThisMonth,
+        total: totalAttendance,
+        rate: attendanceRate,
+      },
+    };
+  }
 }

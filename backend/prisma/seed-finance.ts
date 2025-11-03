@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import * as bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
@@ -572,12 +573,16 @@ export async function seedFinanceData() {
       const email = `${memberData.name.toLowerCase().replace(/\s+/g, '.')}.fcvuive@gmail.com`;
       const birthDate = memberData.birthYear ? new Date(memberData.birthYear, 0, 1) : null;
 
+      // Hash default password
+      const hashedPassword = await bcrypt.hash('password123', 10);
+
       // Tạo user
       const user = await prisma.user.upsert({
         where: { email },
         update: {},
         create: {
           email,
+          password: hashedPassword,
           phone: memberData.phone,
           role: memberData.role?.includes('Chủ tịch') ? 'ADMIN' : 'MEMBER',
         },

@@ -3,7 +3,7 @@ import { SessionsService } from './sessions.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { BadRequestException } from '@nestjs/common';
 import { CreateSessionDto } from './dto/session.dto';
-import { AttendanceStatus } from '@prisma/client';
+// AttendanceStatus enum replaced with string literal
 
 describe('SessionsService', () => {
   let service: SessionsService;
@@ -278,7 +278,7 @@ describe('SessionsService', () => {
         id: 'att-1',
         sessionId: 'session-1',
         memberId: 'member-1',
-        status: AttendanceStatus.PRESENT,
+        status: 'PRESENT',
         member: {
           id: 'member-1',
           fullName: 'Test User',
@@ -291,7 +291,7 @@ describe('SessionsService', () => {
       const result = await service.markAttendance(
         'session-1',
         'member-1',
-        AttendanceStatus.PRESENT,
+        'PRESENT',
       );
 
       expect(result).toEqual(mockAttendance);
@@ -300,7 +300,7 @@ describe('SessionsService', () => {
         expect.objectContaining({
           type: 'attendance',
           member: mockAttendance.member,
-          status: AttendanceStatus.PRESENT,
+          status: 'PRESENT',
         }),
       );
     });
@@ -309,7 +309,7 @@ describe('SessionsService', () => {
       mockPrismaService.registration.findUnique.mockResolvedValue(null);
 
       await expect(
-        service.markAttendance('session-1', 'member-1', AttendanceStatus.PRESENT),
+        service.markAttendance('session-1', 'member-1', 'PRESENT'),
       ).rejects.toThrow(BadRequestException);
     });
   });
@@ -317,10 +317,10 @@ describe('SessionsService', () => {
   describe('getAttendanceStats', () => {
     it('should return attendance statistics', async () => {
       const mockAttendances = [
-        { status: AttendanceStatus.PRESENT },
-        { status: AttendanceStatus.PRESENT },
-        { status: AttendanceStatus.ABSENT },
-        { status: AttendanceStatus.LATE },
+        { status: 'PRESENT' },
+        { status: 'PRESENT' },
+        { status: 'ABSENT' },
+        { status: 'LATE' },
       ];
 
       mockPrismaService.attendance.findMany.mockResolvedValue(mockAttendances);

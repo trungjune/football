@@ -1,6 +1,6 @@
 'use client';
 
-import { signOut, useSession } from 'next-auth/react';
+import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { LogOut, Moon, Sun } from 'lucide-react';
 import { useTheme } from 'next-themes';
@@ -9,11 +9,11 @@ import { NotificationCenter } from '@/components/notifications/notification-cent
 import { MobileNav } from './mobile-nav';
 
 export function Header() {
-  const { data: session } = useSession();
+  const { user, logout } = useAuth();
   const { theme, setTheme } = useTheme();
 
   const handleSignOut = () => {
-    signOut({ callbackUrl: '/auth/signin' });
+    logout();
   };
 
   const toggleTheme = () => {

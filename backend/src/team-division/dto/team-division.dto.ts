@@ -10,7 +10,7 @@ import {
   Max,
   ArrayMinSize,
 } from 'class-validator';
-import { Position } from '@prisma/client';
+// Position enum replaced with string literal
 
 export enum BalanceStrategy {
   RANDOM = 'RANDOM',
@@ -56,13 +56,13 @@ export class ParticipantDto {
   @ApiProperty({ example: 4.5 })
   skill: number;
 
-  @ApiProperty({ enum: Position, example: Position.MIDFIELDER })
-  position: Position;
+  @ApiProperty({ enum: ['GOALKEEPER', 'DEFENDER', 'MIDFIELDER', 'FORWARD'], example: 'MIDFIELDER' })
+  position: 'GOALKEEPER' | 'DEFENDER' | 'MIDFIELDER' | 'FORWARD';
 }
 
 export class PositionStatsDto {
-  @ApiProperty({ enum: Position, example: Position.MIDFIELDER })
-  position: Position;
+  @ApiProperty({ enum: ['GOALKEEPER', 'DEFENDER', 'MIDFIELDER', 'FORWARD'], example: 'MIDFIELDER' })
+  position: 'GOALKEEPER' | 'DEFENDER' | 'MIDFIELDER' | 'FORWARD';
 
   @ApiProperty({ example: 3 })
   count: number;
@@ -96,7 +96,7 @@ export class TeamDivisionSummaryDto {
     example: { GOALKEEPER: 2, DEFENDER: 4, MIDFIELDER: 4, FORWARD: 4 },
     description: 'Overall position distribution',
   })
-  positionDistribution: Record<Position, number>;
+  positionDistribution: Record<'GOALKEEPER' | 'DEFENDER' | 'MIDFIELDER' | 'FORWARD', number>;
 }
 
 export class TeamDivisionResult {

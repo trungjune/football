@@ -1,7 +1,7 @@
 'use client';
 
 import { ReactNode } from 'react';
-import { useSession } from 'next-auth/react';
+import { useAuth } from '@/contexts/AuthContext';
 import { Sidebar } from './sidebar';
 import { Header } from './header';
 import { useNotificationSystem } from '@/hooks/useNotificationSystem';
@@ -11,12 +11,12 @@ interface AppLayoutProps {
 }
 
 export function AppLayout({ children }: AppLayoutProps) {
-  const { data: session } = useSession();
+  const { user } = useAuth();
 
   // Initialize notification system
   useNotificationSystem();
 
-  if (!session) {
+  if (!user) {
     return null;
   }
 

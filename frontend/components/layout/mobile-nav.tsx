@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useSession } from 'next-auth/react';
+import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
@@ -31,7 +31,7 @@ const navigation = [
 export function MobileNav() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
-  const { data: session } = useSession();
+  const { user } = useAuth();
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -77,13 +77,13 @@ export function MobileNav() {
             <div className="flex items-center space-x-3">
               <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary">
                 <span className="text-sm font-medium text-primary-foreground">
-                  {session?.user?.email?.[0]?.toUpperCase()}
+                  {user?.email?.[0]?.toUpperCase()}
                 </span>
               </div>
               <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium">{session?.user?.email}</p>
+                <p className="truncate text-sm font-medium">{user?.email}</p>
                 <p className="text-xs text-muted-foreground">
-                  {session?.user?.role === 'ADMIN' ? 'Quản lý' : 'Thành viên'}
+                  {user?.role === 'ADMIN' ? 'Quản lý' : 'Thành viên'}
                 </p>
               </div>
             </div>

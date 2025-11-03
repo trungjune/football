@@ -22,7 +22,7 @@ import {
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
-import { Role } from '@prisma/client';
+import { Role } from '../common/enums/role.enum';
 import { AuthenticatedRequest } from '../types/express.types';
 
 @ApiTags('Members')
@@ -84,6 +84,17 @@ export class MembersController {
     return member;
   }
 
+  @ApiOperation({ summary: 'Get member profile with dashboard data' })
+  @ApiResponse({
+    status: 200,
+    description: 'Member profile with dashboard data retrieved successfully',
+  })
+  @ApiResponse({ status: 404, description: 'Member profile not found' })
+  @Get('profile/:userId')
+  async getMemberProfile(@Param('userId', ParseUUIDPipe) userId: string) {
+    return this.membersService.getMemberProfile(userId);
+  }
+
   @ApiOperation({ summary: 'Get member by ID' })
   @ApiResponse({ status: 200, description: 'Member retrieved successfully' })
   @ApiResponse({ status: 404, description: 'Member not found' })
@@ -102,7 +113,7 @@ export class MembersController {
     @Request() req: AuthenticatedRequest,
   ) {
     // Members can only update their own profile, admins can update any
-    if (req.user.role !== Role.ADMIN) {
+    if (req.user.role !== 'ADMIN') {
       const member = await this.membersService.findOne(id);
       if (member.userId !== req.user.id) {
         throw new Error('You can only update your own profile');

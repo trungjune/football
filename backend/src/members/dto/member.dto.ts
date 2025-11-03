@@ -9,7 +9,12 @@ import {
   Max,
   IsUUID,
 } from 'class-validator';
-import { Position, MemberType, MemberStatus, PreferredFoot } from '@prisma/client';
+
+// Using string literals to avoid Prisma enum import issues
+type Position = 'GOALKEEPER' | 'DEFENDER' | 'MIDFIELDER' | 'FORWARD';
+type MemberType = 'OFFICIAL' | 'TRIAL' | 'GUEST';
+type MemberStatus = 'ACTIVE' | 'INACTIVE' | 'LEFT';
+type PreferredFoot = 'LEFT' | 'RIGHT';
 
 export class CreateMemberDto {
   @ApiProperty({ example: 'Nguyễn Văn A' })
@@ -26,9 +31,9 @@ export class CreateMemberDto {
   @IsDateString()
   dateOfBirth?: string;
 
-  @ApiProperty({ enum: Position, example: Position.FORWARD })
-  @IsEnum(Position)
-  position: Position;
+  @ApiProperty({ enum: ['GOALKEEPER', 'DEFENDER', 'MIDFIELDER', 'FORWARD'], example: 'FORWARD' })
+  @IsEnum(['GOALKEEPER', 'DEFENDER', 'MIDFIELDER', 'FORWARD'])
+  position: 'GOALKEEPER' | 'DEFENDER' | 'MIDFIELDER' | 'FORWARD';
 
   @ApiProperty({ example: 170, required: false })
   @IsOptional()
@@ -44,17 +49,17 @@ export class CreateMemberDto {
   @Max(200)
   weight?: number;
 
-  @ApiProperty({ enum: PreferredFoot, required: false })
+  @ApiProperty({ enum: ['LEFT', 'RIGHT'], required: false })
   @IsOptional()
-  @IsEnum(PreferredFoot)
+  @IsEnum(['LEFT', 'RIGHT'])
   preferredFoot?: PreferredFoot;
 
-  @ApiProperty({ enum: MemberType, example: MemberType.OFFICIAL })
-  @IsEnum(MemberType)
+  @ApiProperty({ enum: ['OFFICIAL', 'TRIAL', 'GUEST'], example: 'OFFICIAL' })
+  @IsEnum(['OFFICIAL', 'TRIAL', 'GUEST'])
   memberType: MemberType;
 
-  @ApiProperty({ enum: MemberStatus, example: MemberStatus.ACTIVE })
-  @IsEnum(MemberStatus)
+  @ApiProperty({ enum: ['ACTIVE', 'INACTIVE', 'LEFT'], example: 'ACTIVE' })
+  @IsEnum(['ACTIVE', 'INACTIVE', 'LEFT'])
   status: MemberStatus;
 }
 
@@ -74,10 +79,10 @@ export class UpdateMemberDto {
   @IsDateString()
   dateOfBirth?: string;
 
-  @ApiProperty({ enum: Position, required: false })
+  @ApiProperty({ enum: ['GOALKEEPER', 'DEFENDER', 'MIDFIELDER', 'FORWARD'], required: false })
   @IsOptional()
-  @IsEnum(Position)
-  position?: Position;
+  @IsEnum(['GOALKEEPER', 'DEFENDER', 'MIDFIELDER', 'FORWARD'])
+  position?: 'GOALKEEPER' | 'DEFENDER' | 'MIDFIELDER' | 'FORWARD';
 
   @ApiProperty({ example: 170, required: false })
   @IsOptional()
@@ -93,19 +98,19 @@ export class UpdateMemberDto {
   @Max(200)
   weight?: number;
 
-  @ApiProperty({ enum: PreferredFoot, required: false })
+  @ApiProperty({ enum: ['LEFT', 'RIGHT'], required: false })
   @IsOptional()
-  @IsEnum(PreferredFoot)
+  @IsEnum(['LEFT', 'RIGHT'])
   preferredFoot?: PreferredFoot;
 
-  @ApiProperty({ enum: MemberType, required: false })
+  @ApiProperty({ enum: ['OFFICIAL', 'TRIAL', 'GUEST'], required: false })
   @IsOptional()
-  @IsEnum(MemberType)
+  @IsEnum(['OFFICIAL', 'TRIAL', 'GUEST'])
   memberType?: MemberType;
 
-  @ApiProperty({ enum: MemberStatus, required: false })
+  @ApiProperty({ enum: ['ACTIVE', 'INACTIVE', 'LEFT'], required: false })
   @IsOptional()
-  @IsEnum(MemberStatus)
+  @IsEnum(['ACTIVE', 'INACTIVE', 'LEFT'])
   status?: MemberStatus;
 
   @ApiProperty({ example: 'https://example.com/avatar.jpg', required: false })
@@ -120,19 +125,19 @@ export class MemberSearchDto {
   @IsString()
   search?: string;
 
-  @ApiProperty({ enum: Position, required: false })
+  @ApiProperty({ enum: ['GOALKEEPER', 'DEFENDER', 'MIDFIELDER', 'FORWARD'], required: false })
   @IsOptional()
-  @IsEnum(Position)
-  position?: Position;
+  @IsEnum(['GOALKEEPER', 'DEFENDER', 'MIDFIELDER', 'FORWARD'])
+  position?: 'GOALKEEPER' | 'DEFENDER' | 'MIDFIELDER' | 'FORWARD';
 
-  @ApiProperty({ enum: MemberStatus, required: false })
+  @ApiProperty({ enum: ['ACTIVE', 'INACTIVE', 'LEFT'], required: false })
   @IsOptional()
-  @IsEnum(MemberStatus)
+  @IsEnum(['ACTIVE', 'INACTIVE', 'LEFT'])
   status?: MemberStatus;
 
-  @ApiProperty({ enum: MemberType, required: false })
+  @ApiProperty({ enum: ['OFFICIAL', 'TRIAL', 'GUEST'], required: false })
   @IsOptional()
-  @IsEnum(MemberType)
+  @IsEnum(['OFFICIAL', 'TRIAL', 'GUEST'])
   memberType?: MemberType;
 
   @ApiProperty({ example: 1, required: false })

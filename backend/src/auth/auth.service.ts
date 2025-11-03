@@ -24,8 +24,6 @@ export class AuthService {
 
   async validateUser(email: string, password: string): Promise<any> {
     try {
-      console.log('Validating user:', email);
-
       const user = await this.prisma.user.findUnique({
         where: { email },
         include: {
@@ -33,16 +31,12 @@ export class AuthService {
         },
       });
 
-      console.log('User found:', !!user);
-
       if (user && user.password && (await bcrypt.compare(password, user.password))) {
-        console.log('Password validation successful');
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { password: _, ...result } = user;
         return result;
       }
 
-      console.log('Password validation failed');
       return null;
     } catch (error) {
       console.error('Error validating user:', error);
@@ -52,8 +46,6 @@ export class AuthService {
 
   async login(user: any): Promise<AuthResponse> {
     try {
-      console.log('Creating JWT for user:', user.id);
-
       const payload: JwtPayload = {
         sub: user.id,
         email: user.email,
@@ -61,7 +53,6 @@ export class AuthService {
       };
 
       const token = this.jwtService.sign(payload);
-      console.log('JWT created successfully');
 
       return {
         user,

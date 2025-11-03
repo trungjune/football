@@ -2,6 +2,12 @@
 
 A comprehensive web application for managing 7-a-side football teams, built with modern technologies and deployed on Vercel.
 
+## 🚀 Live Demo
+
+- **Frontend**: [https://football-team-manager-pi.vercel.app](https://football-team-manager-pi.vercel.app)
+- **Backend API**: Deployed separately on Vercel
+- **Database**: Supabase PostgreSQL
+
 ## 🌟 Features
 
 ### 👥 Member Management
@@ -319,3 +325,158 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ---
 
 **Made with ⚽ for football teams everywhere**
+
+## 🚀 Deployment
+
+### 1. Setup Database (one time only):
+
+```bash
+# Windows
+scripts/setup-database.bat
+
+# Linux/Mac
+./scripts/setup-database.sh
+```
+
+### 2. Deploy to Vercel:
+
+```bash
+# Windows
+scripts/deploy.bat
+
+# Linux/Mac
+./scripts/deploy.sh
+```
+
+### 3. Login Credentials:
+
+- **Admin**: admin@football.com / admin123
+- **Member**: nguyen.huu.phuc.fcvuive@gmail.com / password123
+
+## 📚 Documentation
+
+- [Deployment Guide](docs/deploy-instructions.md) - Detailed deployment instructions
+- [API Documentation](docs/api-documentation.md) - API endpoints and usage
+- [User Guide](docs/user-guide.md) - How to use the application
+- [Admin Guide](docs/admin-guide.md) - Admin features and management
+
+### Environment Variables
+
+The application uses the following environment variables (already configured in `vercel.json`):
+
+- `DATABASE_URL`: Supabase PostgreSQL connection
+- `JWT_SECRET`: JWT token secret
+- `NEXTAUTH_SECRET`: NextAuth.js secret
+- `CORS_ORIGIN`: Frontend URL for CORS
+- `BACKEND_URL`: Backend API URL
+
+## 📁 Project Structure
+
+```
+├── frontend/          # Next.js frontend application
+│   ├── app/          # App router pages
+│   ├── components/   # Reusable UI components
+│   ├── lib/          # Utility libraries
+│   └── pages/api/    # API proxy routes
+├── backend/          # NestJS backend application
+│   ├── src/          # Source code
+│   ├── prisma/       # Database schema and migrations
+│   └── api/          # Vercel function wrapper
+├── shared/           # Shared types and utilities
+└── docs/            # Documentation
+
+```
+
+## 🔧 Technology Stack
+
+### Frontend
+
+- **Next.js 15** - React framework with App Router
+- **TypeScript** - Type safety
+- **Tailwind CSS** - Styling
+- **Radix UI** - Component library
+- **NextAuth.js** - Authentication
+- **Zustand** - State management
+- **React Hook Form** - Form handling
+
+### Backend
+
+- **NestJS** - Node.js framework
+- **TypeScript** - Type safety
+- **Prisma** - Database ORM
+- **PostgreSQL** - Database (Supabase)
+- **JWT** - Authentication
+- **Socket.IO** - Real-time communication
+- **Swagger** - API documentation
+
+### Deployment
+
+- **Vercel** - Hosting platform
+- **Supabase** - Database hosting
+- **GitHub Actions** - CI/CD (optional)
+
+## 🗄️ Database
+
+The application uses Supabase PostgreSQL with the following main entities:
+
+- **Users** - Authentication and user profiles
+- **Members** - Team member information
+- **Sessions** - Training sessions and matches
+- **Registrations** - Session attendance
+- **Fees** - Financial management
+- **Payments** - Payment tracking
+
+## 🔐 Authentication
+
+- NextAuth.js with JWT strategy
+- Secure session management
+- Role-based access control
+- Password hashing with bcrypt
+
+## 📱 Progressive Web App
+
+- Service worker for offline support
+- App manifest for installation
+- Push notifications
+- Responsive design for all devices
+
+## 🧪 Testing
+
+```bash
+# Frontend tests
+cd frontend
+npm run test
+
+# Backend tests
+cd backend
+npm run test
+
+# E2E tests
+cd frontend
+npm run test:e2e
+```
+
+## 📊 Monitoring
+
+- Error tracking with Sentry
+- Performance monitoring
+- Real-time analytics
+- Health checks
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests if needed
+5. Submit a pull request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- Built with modern web technologies
+- Inspired by real football team management needs
+- Community-driven development

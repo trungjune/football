@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateSessionDto, UpdateSessionDto, SessionSearchDto } from './dto/session.dto';
-import { AttendanceStatus } from '@prisma/client';
+// AttendanceStatus enum replaced with string literal
 
 @Injectable()
 export class SessionsService {
@@ -405,7 +405,7 @@ export class SessionsService {
   async markAttendance(
     sessionId: string,
     memberId: string,
-    status: AttendanceStatus,
+    status: 'PRESENT' | 'ABSENT' | 'LATE',
     reason?: string,
   ) {
     await this.findOne(sessionId);
@@ -514,9 +514,9 @@ export class SessionsService {
 
     const stats = {
       total: attendances.length,
-      present: attendances.filter(a => a.status === AttendanceStatus.PRESENT).length,
-      absent: attendances.filter(a => a.status === AttendanceStatus.ABSENT).length,
-      late: attendances.filter(a => a.status === AttendanceStatus.LATE).length,
+      present: attendances.filter(a => a.status === 'PRESENT').length,
+      absent: attendances.filter(a => a.status === 'ABSENT').length,
+      late: attendances.filter(a => a.status === 'LATE').length,
     };
 
     return {

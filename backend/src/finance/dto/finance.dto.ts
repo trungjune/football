@@ -10,7 +10,7 @@ import {
   IsUUID,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { FeeType, PaymentMethod, PaymentStatus } from '@prisma/client';
+// Finance enums replaced with string literals
 
 export class CreateFeeDto {
   @ApiProperty({ example: 'Phí tháng 12/2024' })
@@ -28,9 +28,9 @@ export class CreateFeeDto {
   @Min(0, { message: 'Số tiền phải lớn hơn hoặc bằng 0' })
   amount: number;
 
-  @ApiProperty({ enum: FeeType, example: FeeType.MONTHLY })
-  @IsEnum(FeeType, { message: 'Loại phí không hợp lệ' })
-  type: FeeType;
+  @ApiProperty({ enum: ['MONTHLY', 'SPECIAL'], example: 'MONTHLY' })
+  @IsEnum(['MONTHLY', 'SPECIAL'], { message: 'Loại phí không hợp lệ' })
+  type: 'MONTHLY' | 'SPECIAL';
 
   @ApiProperty({ example: '2024-12-31T23:59:59Z', required: false })
   @IsOptional()
@@ -56,9 +56,9 @@ export class CreatePaymentDto {
   @Min(0, { message: 'Số tiền phải lớn hơn 0' })
   amount: number;
 
-  @ApiProperty({ enum: PaymentMethod, example: PaymentMethod.CASH })
-  @IsEnum(PaymentMethod, { message: 'Phương thức thanh toán không hợp lệ' })
-  method: PaymentMethod;
+  @ApiProperty({ enum: ['CASH', 'BANK_TRANSFER'], example: 'CASH' })
+  @IsEnum(['CASH', 'BANK_TRANSFER'], { message: 'Phương thức thanh toán không hợp lệ' })
+  method: 'CASH' | 'BANK_TRANSFER';
 }
 
 export class FinanceSearchDto {
@@ -67,15 +67,15 @@ export class FinanceSearchDto {
   @IsString()
   search?: string;
 
-  @ApiProperty({ enum: FeeType, required: false })
+  @ApiProperty({ enum: ['MONTHLY', 'SPECIAL'], required: false })
   @IsOptional()
-  @IsEnum(FeeType)
-  type?: FeeType;
+  @IsEnum(['MONTHLY', 'SPECIAL'])
+  type?: 'MONTHLY' | 'SPECIAL';
 
-  @ApiProperty({ enum: PaymentStatus, required: false })
+  @ApiProperty({ enum: ['PENDING', 'COMPLETED', 'FAILED'], required: false })
   @IsOptional()
-  @IsEnum(PaymentStatus)
-  status?: PaymentStatus;
+  @IsEnum(['PENDING', 'COMPLETED', 'FAILED'])
+  status?: 'PENDING' | 'COMPLETED' | 'FAILED';
 
   @ApiProperty({ required: false })
   @IsOptional()
@@ -156,8 +156,8 @@ export class DebtItemDto {
   @ApiProperty({ example: '2024-12-31T23:59:59Z' })
   dueDate?: string;
 
-  @ApiProperty({ enum: FeeType, example: FeeType.MONTHLY })
-  type: FeeType;
+  @ApiProperty({ enum: ['MONTHLY', 'SPECIAL'], example: 'MONTHLY' })
+  type: 'MONTHLY' | 'SPECIAL';
 }
 
 export class DebtListItemDto {

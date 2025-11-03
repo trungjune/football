@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import productionConfig from './config/production.config';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
@@ -9,11 +10,15 @@ import { TeamDivisionModule } from './team-division/team-division.module';
 import { FinanceModule } from './finance/finance.module';
 import { WebSocketModule } from './websocket/websocket.module';
 import { CacheModule } from './cache/cache.module';
+import { HealthModule } from './health/health.module';
+import { DashboardModule } from './dashboard/dashboard.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      load: [productionConfig],
+      envFilePath: process.env.NODE_ENV === 'production' ? undefined : '.env',
     }),
     ThrottlerModule.forRoot([
       {
@@ -29,6 +34,8 @@ import { CacheModule } from './cache/cache.module';
     FinanceModule,
     WebSocketModule,
     CacheModule,
+    HealthModule,
+    DashboardModule,
   ],
   controllers: [],
   providers: [],

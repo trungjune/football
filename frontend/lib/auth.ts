@@ -1,18 +1,12 @@
 import { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
-import { PrismaAdapter } from '@next-auth/prisma-adapter';
-import { PrismaClient } from '@prisma/client';
-import axios from 'axios';
 
 enum Role {
   ADMIN = 'ADMIN',
   MEMBER = 'MEMBER',
 }
 
-const prisma = new PrismaClient();
-
 export const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapter(prisma),
   providers: [
     CredentialsProvider({
       name: 'credentials',
@@ -26,32 +20,39 @@ export const authOptions: NextAuthOptions = {
         }
 
         try {
-          const apiUrl =
+          // Call backend API for authentication (same domain)
+          const backendUrl =
             process.env.NODE_ENV === 'production'
-              ? '/api/auth/login'
-              : 'http://localhost:3001/api/auth/login';
-
-          const response = await axios.post(apiUrl, {
-            email: credentials.email,
-            password: credentials.password,
+              ? '' // Same domain in production
+              : 'http://localhost:3001';
+          const response = await fetch(`${backendUrl}/api/auth/login`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              email: credentials.email,
+              password: credentials.password,
+            }),
           });
 
-          const { user, access_token } = response.data;
-
-          if (user) {
-            return {
-              id: user.id,
-              email: user.email,
-              role: user.role,
-              accessToken: access_token,
-              member: user.member,
-            };
+          if (!response.ok) {
+            return null;
           }
+
+          const data = await response.json();
+
+          return {
+            id: data.user.id,
+            email: data.user.email,
+            role: data.user.role,
+            accessToken: data.access_token,
+            member: data.user.member,
+          };
         } catch (error) {
           console.error('Authentication error:', error);
+          return null;
         }
-
-        return null;
       },
     }),
   ],

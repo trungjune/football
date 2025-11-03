@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useSession } from 'next-auth/react';
+import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
 import {
   Users,
@@ -26,7 +26,7 @@ const navigation = [
 
 export function Sidebar() {
   const pathname = usePathname();
-  const { data: session } = useSession();
+  const { user } = useAuth();
 
   return (
     <div className="flex h-screen w-64 flex-col bg-card border-r">
@@ -61,13 +61,13 @@ export function Sidebar() {
         <div className="flex items-center space-x-3">
           <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center">
             <span className="text-sm font-medium text-primary-foreground">
-              {session?.user?.email?.[0]?.toUpperCase()}
+              {user?.email?.[0]?.toUpperCase()}
             </span>
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium truncate">{session?.user?.email}</p>
+            <p className="text-sm font-medium truncate">{user?.email}</p>
             <p className="text-xs text-muted-foreground">
-              {session?.user?.role === 'ADMIN' ? 'Quản lý' : 'Thành viên'}
+              {user?.role === 'ADMIN' ? 'Quản lý' : 'Thành viên'}
             </p>
           </div>
         </div>

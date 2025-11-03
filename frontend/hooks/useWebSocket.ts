@@ -1,15 +1,15 @@
 import { useEffect, useRef, useState } from 'react';
-import { useSession } from 'next-auth/react';
+import { useAuth } from '@/contexts/AuthContext';
 import websocketService from '@/lib/websocket';
 
 export function useWebSocket() {
-  const { data: session } = useSession();
+  const { token } = useAuth();
   const [isConnected, setIsConnected] = useState(false);
   const [connectionError, setConnectionError] = useState<string | null>(null);
   const reconnectTimeoutRef = useRef<NodeJS.Timeout>();
 
   useEffect(() => {
-    if (!session?.accessToken) {
+    if (!token) {
       return;
     }
 
@@ -41,7 +41,7 @@ export function useWebSocket() {
       websocketService.disconnect();
       setIsConnected(false);
     };
-  }, [session?.accessToken]);
+  }, [token]);
 
   // Monitor connection status
   useEffect(() => {

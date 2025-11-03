@@ -1,23 +1,23 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { DivideTeamsDto, SaveFormationDto, TeamDivisionResult } from './dto/team-division.dto';
-import { Position } from '@prisma/client';
+// Position enum replaced with string literal
 
 interface Participant {
   id: string;
   name: string;
   skill: number;
-  position: Position;
+  position: 'GOALKEEPER' | 'DEFENDER' | 'MIDFIELDER' | 'FORWARD';
 }
 
 interface Team {
   participants: Participant[];
   totalScore: number;
-  positionCounts: Record<Position, number>;
+  positionCounts: Record<'GOALKEEPER' | 'DEFENDER' | 'MIDFIELDER' | 'FORWARD', number>;
 }
 
 interface PositionStats {
-  position: Position;
+  position: 'GOALKEEPER' | 'DEFENDER' | 'MIDFIELDER' | 'FORWARD';
   count: number;
   totalScore: number;
 }
@@ -165,7 +165,10 @@ export class TeamDivisionService {
     }));
 
     // Group by position
-    const positionGroups: Record<Position, Participant[]> = {
+    const positionGroups: Record<
+      'GOALKEEPER' | 'DEFENDER' | 'MIDFIELDER' | 'FORWARD',
+      Participant[]
+    > = {
       GOALKEEPER: [],
       DEFENDER: [],
       MIDFIELDER: [],
@@ -177,7 +180,7 @@ export class TeamDivisionService {
     });
 
     // Distribute each position group
-    Object.values(Position).forEach(position => {
+    (['GOALKEEPER', 'DEFENDER', 'MIDFIELDER', 'FORWARD'] as const).forEach(position => {
       const group = positionGroups[position].sort(() => Math.random() - 0.5);
       group.forEach((participant, index) => {
         const teamIndex = index % numberOfTeams;
@@ -249,7 +252,7 @@ export class TeamDivisionService {
       }
 
       // 2. Balance positions
-      for (const position of Object.values(Position)) {
+      for (const position of ['GOALKEEPER', 'DEFENDER', 'MIDFIELDER', 'FORWARD'] as const) {
         const positionCounts = teams.map(team => team.positionCounts[position]);
         const maxCount = Math.max(...positionCounts);
         const minCount = Math.min(...positionCounts);
@@ -298,7 +301,7 @@ export class TeamDivisionService {
   private findPositionBalanceSwap(
     maxTeam: Team,
     minTeam: Team,
-    position: Position,
+    position: 'GOALKEEPER' | 'DEFENDER' | 'MIDFIELDER' | 'FORWARD',
     maxScoreDiff: number,
   ) {
     const playersFromMax = maxTeam.participants.filter(p => p.position === position);
@@ -342,7 +345,10 @@ export class TeamDivisionService {
     team2.positionCounts[player1.position]++;
   }
 
-  private initializePositionCounts(): Record<Position, number> {
+  private initializePositionCounts(): Record<
+    'GOALKEEPER' | 'DEFENDER' | 'MIDFIELDER' | 'FORWARD',
+    number
+  > {
     return {
       GOALKEEPER: 0,
       DEFENDER: 0,
@@ -354,10 +360,10 @@ export class TeamDivisionService {
   private getPositionStats(participants: Participant[]): PositionStats[] {
     const stats: PositionStats[] = [];
 
-    for (const position of Object.values(Position)) {
+    for (const position of ['GOALKEEPER', 'DEFENDER', 'MIDFIELDER', 'FORWARD'] as const) {
       const positionPlayers = participants.filter(p => p.position === position);
       stats.push({
-        position,
+        position: position as 'GOALKEEPER' | 'DEFENDER' | 'MIDFIELDER' | 'FORWARD',
         count: positionPlayers.length,
         totalScore: positionPlayers.reduce((sum, p) => sum + p.skill, 0),
       });
@@ -366,7 +372,9 @@ export class TeamDivisionService {
     return stats;
   }
 
-  private getOverallPositionStats(participants: Participant[]): Record<Position, number> {
+  private getOverallPositionStats(
+    participants: Participant[],
+  ): Record<'GOALKEEPER' | 'DEFENDER' | 'MIDFIELDER' | 'FORWARD', number> {
     const stats = this.initializePositionCounts();
     participants.forEach(p => {
       stats[p.position]++;

@@ -18,7 +18,8 @@ import { CreateFeeDto, UpdateFeeDto, CreatePaymentDto, FinanceSearchDto } from '
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
-import { PaymentStatus, Role } from '@prisma/client';
+import { Role } from '../common/enums/role.enum';
+import { PaymentStatus } from '@prisma/client';
 
 @ApiTags('Finance')
 @ApiBearerAuth()
@@ -98,7 +99,10 @@ export class FinanceController {
   @UseGuards(RolesGuard)
   @Roles(Role.ADMIN)
   @Patch('payments/:id/status')
-  updatePaymentStatus(@Param('id') id: string, @Body('status') status: PaymentStatus) {
+  updatePaymentStatus(
+    @Param('id') id: string,
+    @Body('status') status: 'PENDING' | 'COMPLETED' | 'FAILED',
+  ) {
     return this.financeService.updatePaymentStatus(id, status);
   }
 

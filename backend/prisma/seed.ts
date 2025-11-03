@@ -1,5 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import { seedFinanceData } from './seed-finance';
+import { seedAdminUser } from './seed-admin';
 
 const prisma = new PrismaClient();
 
@@ -7,6 +8,9 @@ async function main() {
   console.log('🌱 Starting database seeding...');
 
   try {
+    // Seed admin user first
+    await seedAdminUser();
+
     // Seed finance data (includes teams, members, fees, payments)
     await seedFinanceData();
 
