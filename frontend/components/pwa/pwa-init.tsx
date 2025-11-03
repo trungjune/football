@@ -6,8 +6,8 @@ import { toast } from '@/hooks/useToast';
 
 export function PWAInit() {
   useEffect(() => {
-    // Register service worker
-    registerServiceWorker();
+    // Register service worker (temporarily disabled due to deployment issues)
+    // registerServiceWorker();
 
     // Setup install prompt
     setupInstallPrompt();
