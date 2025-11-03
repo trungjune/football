@@ -37,12 +37,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         userValue: storedUser,
       });
 
-      if (storedToken && storedUser && storedUser !== 'undefined') {
+      if (storedToken && storedUser && storedUser !== 'undefined' && storedUser !== 'null') {
         try {
           const parsedUser = JSON.parse(storedUser);
           console.log('AuthContext: Setting user from localStorage', parsedUser);
-          setToken(storedToken);
-          setUser(parsedUser);
+
+          // Kiểm tra xem parsedUser có hợp lệ không
+          if (parsedUser && typeof parsedUser === 'object' && parsedUser.id) {
+            setToken(storedToken);
+            setUser(parsedUser);
+          } else {
+            console.log('AuthContext: Invalid user data, clearing localStorage');
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+          }
         } catch (error) {
           console.error('Lỗi parse dữ liệu user từ localStorage:', error);
           // Xóa dữ liệu không hợp lệ
@@ -91,14 +99,42 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       token: newToken,
       user: newUser,
     });
+
+    // Kiểm tra dữ liệu đầu vào
+    if (!newToken || !newUser || !newUser.id) {
+      console.error('AuthContext: Invalid login data provided');
+      return;
+    }
+
+    // Xóa dữ liệu cũ trước
+    try {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      console.log('AuthContext: Cleared old localStorage data');
+    } catch (error) {
+      console.error('AuthContext: Error clearing localStorage:', error);
+    }
+
+    // Cập nhật state
     setToken(newToken);
     setUser(newUser);
-    localStorage.setItem('token', newToken);
-    localStorage.setItem('user', JSON.stringify(newUser));
 
-    // Also set cookie for middleware
-    document.cookie = `token=${newToken}; path=/; max-age=86400; SameSite=Lax`;
-    console.log('AuthContext: Token saved to localStorage and cookie');
+    // Lưu dữ liệu mới vào localStorage
+    try {
+      localStorage.setItem('token', newToken);
+      localStorage.setItem('user', JSON.stringify(newUser));
+
+      // Also set cookie for middleware
+      document.cookie = `token=${newToken}; path=/; max-age=86400; SameSite=Lax`;
+
+      console.log('AuthContext: Token and user saved successfully:', {
+        tokenSaved: !!localStorage.getItem('token'),
+        userSaved: !!localStorage.getItem('user'),
+        userValue: localStorage.getItem('user'),
+      });
+    } catch (error) {
+      console.error('AuthContext: Error saving to localStorage:', error);
+    }
   };
 
   const logout = () => {

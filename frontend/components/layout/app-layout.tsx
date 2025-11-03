@@ -30,9 +30,17 @@ export function AppLayout({ children }: AppLayoutProps) {
 
   // Redirect nếu không có user (middleware sẽ xử lý)
   if (!user) {
+    // Thêm timeout để tránh hiển thị lâu
+    setTimeout(() => {
+      if (typeof window !== 'undefined') {
+        window.location.href = '/login';
+      }
+    }, 2000);
+
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
         <div className="text-center">
+          <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-b-2 border-primary"></div>
           <p className="text-muted-foreground">Đang chuyển hướng...</p>
         </div>
       </div>

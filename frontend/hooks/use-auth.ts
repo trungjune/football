@@ -24,7 +24,11 @@ export function useLogin() {
     onSuccess: data => {
       console.log('useLogin: Login successful, data:', data);
       login(data.access_token, data.user);
-      router.push('/dashboard');
+
+      // Đợi một chút để đảm bảo state được cập nhật
+      setTimeout(() => {
+        router.push('/dashboard');
+      }, 100);
     },
     onError: (error: ApiError) => {
       console.error('useLogin: Login failed with error:', error);
