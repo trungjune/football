@@ -185,7 +185,7 @@ class WebSocketService {
   }
 
   // Admin methods
-  sendAdminMessage(message: any) {
+  sendAdminMessage(message: unknown) {
     if (this.socket?.connected) {
       this.socket.emit('admin_message', message);
     }
