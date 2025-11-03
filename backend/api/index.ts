@@ -24,17 +24,13 @@ async function createApp() {
       );
       app.use(compression());
 
-      // CORS configuration
+      // CORS configuration - Allow all origins for testing
       app.enableCors({
-        origin: [
-          'http://localhost:3000',
-          'https://football-team-manager-pi.vercel.app',
-          'https://football-team-manager-lxgd8g0x4-trungs-projects-4a25ad7a.vercel.app',
-          /\.vercel\.app$/,
-        ],
+        origin: true, // Allow all origins
         credentials: true,
         methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-        allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+        allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin', 'X-Requested-With'],
+        exposedHeaders: ['Content-Length', 'X-Foo', 'X-Bar'],
       });
 
       // Global validation pipe
