@@ -81,15 +81,14 @@ const nextConfig = {
   },
 
   async rewrites() {
-    return [
-      {
-        source: '/api/:path*',
-        destination:
-          process.env.NODE_ENV === 'development'
-            ? 'http://localhost:3001/api/:path*'
-            : '/api/:path*',
-      },
-    ];
+    return process.env.NODE_ENV === 'development'
+      ? [
+          {
+            source: '/api/:path*',
+            destination: 'http://localhost:3001/api/:path*',
+          },
+        ]
+      : [];
   },
 
   typescript: {
