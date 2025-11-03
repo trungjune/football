@@ -11,12 +11,12 @@ import { SecurityService } from '../services/security.service';
 import { SanitizerUtil } from '../utils/sanitizer.util';
 
 @Injectable()
-export class ValidationPipe implements PipeTransform<any> {
+export class ValidationPipe implements PipeTransform<unknown> {
   private readonly logger = new Logger(ValidationPipe.name);
 
   constructor(private securityService: SecurityService) {}
 
-  async transform(value: any, { metatype }: ArgumentMetadata) {
+  async transform(value: unknown, { metatype }: ArgumentMetadata) {
     if (!metatype || !this.toValidate(metatype)) {
       return this.sanitizeInput(value);
     }
@@ -42,12 +42,12 @@ export class ValidationPipe implements PipeTransform<any> {
     return object;
   }
 
-  private toValidate(metatype: new (...args: any[]) => any): boolean {
-    const types: (new (...args: any[]) => any)[] = [String, Boolean, Number, Array, Object];
+  private toValidate(metatype: new (...args: unknown[]) => unknown): boolean {
+    const types: (new (...args: unknown[]) => unknown)[] = [String, Boolean, Number, Array, Object];
     return !types.includes(metatype);
   }
 
-  private sanitizeInput(value: any): any {
+  private sanitizeInput(value: unknown): unknown {
     if (typeof value === 'string') {
       // Use security service for comprehensive sanitization
       const sanitized = this.securityService.sanitizeInput(value);
@@ -61,9 +61,9 @@ export class ValidationPipe implements PipeTransform<any> {
     }
 
     if (value && typeof value === 'object') {
-      const sanitized: any = {};
+      const sanitized: Record<string, unknown> = {};
       for (const [key, val] of Object.entries(value)) {
-        sanitized[this.sanitizeInput(key)] = this.sanitizeInput(val);
+        sanitized[this.sanitizeInput(key) as string] = this.sanitizeInput(val);
       }
       return sanitized;
     }

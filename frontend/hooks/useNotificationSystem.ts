@@ -68,7 +68,7 @@ export function useNotificationSystem() {
     });
   });
 
-  useWebSocketEvent('broadcastNotification', (data: any) => {
+  useWebSocketEvent('broadcastNotification', (data: unknown) => {
     toast({
       title: data.title || 'Thông báo chung',
       description: data.message || data.content,

@@ -76,6 +76,10 @@ export class FinanceService {
       where.type = type;
     }
 
+    if (status) {
+      where.status = status;
+    }
+
     if (dateFrom || dateTo) {
       where.createdAt = {};
       if (dateFrom) {

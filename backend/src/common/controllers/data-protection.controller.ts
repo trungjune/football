@@ -29,7 +29,10 @@ export class DataProtectionController {
   @Roles(Role.ADMIN)
   @ApiOperation({ summary: 'Export user data for GDPR compliance' })
   @ApiResponse({ status: 200, description: 'User data exported successfully' })
-  async exportUserData(@Param('userId') userId: string, @Request() req: any) {
+  async exportUserData(
+    @Param('userId') userId: string,
+    @Request() req: { user: { id: string }; ip: string },
+  ) {
     const exportData = await this.dataProtectionService.exportUserData(userId, req.user.id, req.ip);
 
     return {
@@ -43,7 +46,10 @@ export class DataProtectionController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Delete user data for GDPR compliance' })
   @ApiResponse({ status: 200, description: 'User data deleted successfully' })
-  async deleteUserData(@Param('userId') userId: string, @Request() req: any) {
+  async deleteUserData(
+    @Param('userId') userId: string,
+    @Request() req: { user: { id: string }; ip: string },
+  ) {
     const result = await this.dataProtectionService.deleteUserData(userId, req.user.id, req.ip);
 
     return {
@@ -57,7 +63,10 @@ export class DataProtectionController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Anonymize user data' })
   @ApiResponse({ status: 200, description: 'User data anonymized successfully' })
-  anonymizeUserData(@Param('userId') userId: string, @Request() req: any) {
+  anonymizeUserData(
+    @Param('userId') userId: string,
+    @Request() req: { user: { id: string }; ip: string },
+  ) {
     const result = this.dataProtectionService.anonymizeUserData(userId, req.user.id, req.ip);
 
     return {

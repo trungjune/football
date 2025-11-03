@@ -87,10 +87,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [user, token, router]);
 
   const login = (newToken: string, newUser: User) => {
+    console.log('AuthContext: Login called with token and user:', {
+      token: newToken,
+      user: newUser,
+    });
     setToken(newToken);
     setUser(newUser);
     localStorage.setItem('token', newToken);
     localStorage.setItem('user', JSON.stringify(newUser));
+
+    // Also set cookie for middleware
+    document.cookie = `token=${newToken}; path=/; max-age=86400; SameSite=Lax`;
+    console.log('AuthContext: Token saved to localStorage and cookie');
   };
 
   const logout = () => {
@@ -98,6 +106,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+
+    // Also clear cookie
+    document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
     router.push('/login');
   };
 
