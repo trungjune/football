@@ -9,13 +9,19 @@ export function useLogin() {
   const router = useRouter();
 
   return useMutation({
-    mutationFn: authApi.login,
+    mutationFn: (data: LoginRequest) => {
+      console.log('useLogin: Starting login mutation with data:', data);
+      return authApi.login(data);
+    },
     onSuccess: data => {
+      console.log('useLogin: Login successful, data:', data);
       login(data.access_token, data.user);
       router.push('/dashboard');
     },
     onError: (error: any) => {
-      console.error('Login failed:', error);
+      console.error('useLogin: Login failed with error:', error);
+      console.error('useLogin: Error response:', error.response?.data);
+      console.error('useLogin: Error status:', error.response?.status);
     },
   });
 }
