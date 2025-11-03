@@ -82,7 +82,7 @@ export class FileValidationPipe implements PipeTransform {
 
   constructor(private securityService: SecurityService) {}
 
-  transform(file: Express.Multer.File, _metadata: ArgumentMetadata) {
+  transform(file: Express.Multer.File) {
     if (!file) {
       return file;
     }

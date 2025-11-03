@@ -1,10 +1,36 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
+interface RedisClient {
+  get(key: string): Promise<string | null>;
+  set(key: string, value: string, mode?: string, duration?: number): Promise<string>;
+  setex(key: string, seconds: number, value: string): Promise<string>;
+  del(...keys: string[]): Promise<number>;
+  exists(key: string): Promise<number>;
+  flushall(): Promise<string>;
+  info(): Promise<string>;
+  keys(pattern: string): Promise<string[]>;
+}
+
+interface MemoryCache {
+  get(key: string): string | undefined;
+  set(key: string, value: string): void;
+  delete(key: string): boolean;
+  size: number;
+}
+
+interface CacheStats {
+  type: 'memory' | 'redis' | 'error';
+  keys?: number;
+  memory?: string;
+  info?: string;
+  error?: string;
+}
+
 @Injectable()
 export class CacheService {
   private readonly logger = new Logger(CacheService.name);
-  private redis: any;
+  private redis: RedisClient | MemoryCache | null = null;
 
   constructor(private configService: ConfigService) {
     this.initializeRedis();
@@ -20,15 +46,15 @@ export class CacheService {
         this.redis = new Redis({
           url: redisUrl,
           token: this.configService.get<string>('UPSTASH_REDIS_TOKEN'),
-        });
+        }) as unknown as RedisClient;
         this.logger.log('Redis cache initialized');
       } else {
         this.logger.warn('Redis not configured, using in-memory cache fallback');
-        this.redis = new Map(); // Fallback to in-memory cache
+        this.redis = new Map() as unknown as MemoryCache; // Fallback to in-memory cache
       }
     } catch (error) {
       this.logger.error('Failed to initialize Redis, using in-memory cache', error);
-      this.redis = new Map();
+      this.redis = new Map() as unknown as MemoryCache;
     }
   }
 
@@ -39,7 +65,7 @@ export class CacheService {
         return value ? JSON.parse(value) : null;
       }
 
-      const value = await this.redis.get(key);
+      const value = await (this.redis as RedisClient).get(key);
       return value ? JSON.parse(value) : null;
     } catch (error) {
       this.logger.error(`Cache get error for key ${key}:`, error);
@@ -47,18 +73,18 @@ export class CacheService {
     }
   }
 
-  async set(key: string, value: any, ttlSeconds = 3600): Promise<void> {
+  async set<T>(key: string, value: T, ttlSeconds = 3600): Promise<void> {
     try {
       const serializedValue = JSON.stringify(value);
 
       if (this.redis instanceof Map) {
         this.redis.set(key, serializedValue);
         // Simple TTL for in-memory cache
-        setTimeout(() => this.redis.delete(key), ttlSeconds * 1000);
+        setTimeout(() => (this.redis as MemoryCache).delete(key), ttlSeconds * 1000);
         return;
       }
 
-      await this.redis.setex(key, ttlSeconds, serializedValue);
+      await (this.redis as RedisClient).setex(key, ttlSeconds, serializedValue);
     } catch (error) {
       this.logger.error(`Cache set error for key ${key}:`, error);
     }
@@ -71,7 +97,7 @@ export class CacheService {
         return;
       }
 
-      await this.redis.del(key);
+      await (this.redis as RedisClient).del(key);
     } catch (error) {
       this.logger.error(`Cache delete error for key ${key}:`, error);
     }
@@ -84,13 +110,13 @@ export class CacheService {
         const keys = Array.from(this.redis.keys()).filter(key =>
           key.includes(pattern.replace('*', '')),
         );
-        keys.forEach(key => this.redis.delete(key));
+        keys.forEach(key => (this.redis as MemoryCache).delete(key));
         return;
       }
 
-      const keys = await this.redis.keys(pattern);
+      const keys = await (this.redis as RedisClient).keys(pattern);
       if (keys.length > 0) {
-        await this.redis.del(...keys);
+        await (this.redis as RedisClient).del(...keys);
       }
     } catch (error) {
       this.logger.error(`Cache invalidate pattern error for ${pattern}:`, error);
@@ -116,7 +142,7 @@ export class CacheService {
   }
 
   // Cache statistics (for monitoring)
-  async getStats(): Promise<any> {
+  async getStats(): Promise<CacheStats> {
     try {
       if (this.redis instanceof Map) {
         return {
@@ -126,14 +152,14 @@ export class CacheService {
         };
       }
 
-      const info = await this.redis.info();
+      const info = await (this.redis as RedisClient).info();
       return {
         type: 'redis',
         info: info,
       };
     } catch (error) {
       this.logger.error('Cache stats error:', error);
-      return { type: 'error', error: error.message };
+      return { type: 'error', error: (error as Error).message };
     }
   }
 }

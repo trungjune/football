@@ -13,7 +13,7 @@ import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagg
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
-import { LoginDto, RegisterDto, ChangePasswordDto, UpdateProfileDto } from './dto/auth.dto';
+import { RegisterDto, ChangePasswordDto, UpdateProfileDto } from './dto/auth.dto';
 import { AuthenticatedRequest } from '../types/express.types';
 
 @ApiTags('Authentication')

@@ -1,8 +1,7 @@
 'use client';
 
 import { Badge } from '@/components/ui/badge';
-import { Wifi, WifiOff } from 'lucide-react';
-import { useWebSocket } from '@/hooks/useWebSocket';
+import { Wifi } from 'lucide-react';
 
 export function WebSocketStatus() {
   // Temporarily disabled WebSocket to avoid "Offline" status

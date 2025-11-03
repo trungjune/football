@@ -37,7 +37,7 @@ export class SessionsController {
   @UseGuards(RolesGuard)
   @Roles(Role.ADMIN)
   @Post()
-  create(@Body() createSessionDto: CreateSessionDto, @Request() _req: any) {
+  create(@Body() createSessionDto: CreateSessionDto) {
     // For now, use a default team ID. In a real app, this would come from the user's team
     const teamId = 'team-1';
     return this.sessionsService.create(createSessionDto, teamId);

@@ -50,7 +50,7 @@ export class FinanceService {
     const {
       search,
       type,
-      status: _status,
+      status,
       dateFrom,
       dateTo,
       page = 1,
@@ -233,7 +233,7 @@ export class FinanceService {
     const { feeId, memberId, amount, method } = createPaymentDto;
 
     // Verify fee exists
-    const _fee = await this.findOneFee(feeId);
+    await this.findOneFee(feeId);
 
     // Verify member exists
     const member = await this.prisma.member.findUnique({

@@ -3,10 +3,16 @@
 import { useState, useEffect } from 'react';
 import { AppLayout } from '@/components/layout/app-layout';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { RefreshCw, Trash2, Plus, Users } from 'lucide-react';
 import api from '@/lib/axios';
 
@@ -31,15 +37,6 @@ interface PositionStats {
   position: Position;
   count: number;
   totalScore: number;
-}
-
-interface TeamDivisionResult {
-  teams: Team[];
-  summary: {
-    totalParticipants: number;
-    averageSkill: number;
-    positionDistribution: Record<Position, number>;
-  };
 }
 
 const positionNames: Record<Position, string> = {
@@ -168,20 +165,21 @@ export default function TeamDivisionPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div>
                   <Label>Thành viên có sẵn</Label>
-                  <div className="mt-2 max-h-60 overflow-y-auto border rounded-md p-2">
-                    {availableMembers.map((member) => (
+                  <div className="mt-2 max-h-60 overflow-y-auto rounded-md border p-2">
+                    {availableMembers.map(member => (
                       <div
                         key={member.id}
-                        className="flex items-center justify-between p-2 hover:bg-accent rounded cursor-pointer"
+                        className="flex cursor-pointer items-center justify-between rounded p-2 hover:bg-accent"
                         onClick={() => addParticipant(member.id)}
                       >
                         <div>
                           <p className="font-medium">{member.fullName}</p>
                           <p className="text-sm text-muted-foreground">
-                            {getPositionDisplay(member.position)} - Kỹ năng: {calculateMemberSkill(member)}
+                            {getPositionDisplay(member.position)} - Kỹ năng:{' '}
+                            {calculateMemberSkill(member)}
                           </p>
                         </div>
                         <Plus className="h-4 w-4" />
@@ -192,23 +190,20 @@ export default function TeamDivisionPage() {
 
                 <div>
                   <Label>Thành viên đã chọn ({participants.length})</Label>
-                  <div className="mt-2 max-h-60 overflow-y-auto border rounded-md p-2">
+                  <div className="mt-2 max-h-60 overflow-y-auto rounded-md border p-2">
                     {participants.map((participant, index) => (
                       <div
                         key={participant.id}
-                        className="flex items-center justify-between p-2 hover:bg-accent rounded"
+                        className="flex items-center justify-between rounded p-2 hover:bg-accent"
                       >
                         <div>
                           <p className="font-medium">{participant.name}</p>
                           <p className="text-sm text-muted-foreground">
-                            {getPositionDisplay(participant.position)} - Kỹ năng: {participant.skill}
+                            {getPositionDisplay(participant.position)} - Kỹ năng:{' '}
+                            {participant.skill}
                           </p>
                         </div>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => removeParticipant(index)}
-                        >
+                        <Button variant="ghost" size="sm" onClick={() => removeParticipant(index)}>
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
@@ -226,15 +221,18 @@ export default function TeamDivisionPage() {
             <CardDescription>Chọn số lượng đội và chiến lược chia đội</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
               <div>
                 <Label htmlFor="teams">Số lượng đội</Label>
-                <Select value={numberOfTeams.toString()} onValueChange={(value) => setNumberOfTeams(Number(value))}>
+                <Select
+                  value={numberOfTeams.toString()}
+                  onValueChange={value => setNumberOfTeams(Number(value))}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Số đội" />
                   </SelectTrigger>
                   <SelectContent>
-                    {[2, 3, 4, 5, 6].map((num) => (
+                    {[2, 3, 4, 5, 6].map(num => (
                       <SelectItem key={num} value={num.toString()}>
                         {num} đội
                       </SelectItem>
@@ -245,7 +243,10 @@ export default function TeamDivisionPage() {
 
               <div>
                 <Label htmlFor="strategy">Chiến lược chia đội</Label>
-                <Select value={balanceStrategy} onValueChange={(value: BalanceStrategy) => setBalanceStrategy(value)}>
+                <Select
+                  value={balanceStrategy}
+                  onValueChange={(value: BalanceStrategy) => setBalanceStrategy(value)}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Chiến lược" />
                   </SelectTrigger>
@@ -260,7 +261,11 @@ export default function TeamDivisionPage() {
               </div>
 
               <div className="flex items-end">
-                <Button onClick={generateTeams} disabled={isLoading || participants.length === 0} className="w-full">
+                <Button
+                  onClick={generateTeams}
+                  disabled={isLoading || participants.length === 0}
+                  className="w-full"
+                >
                   {isLoading ? (
                     <>
                       <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
@@ -288,7 +293,7 @@ export default function TeamDivisionPage() {
               <div className="space-y-6">
                 {/* Summary Table */}
                 <div className="overflow-x-auto">
-                  <table className="w-full text-sm border-collapse border">
+                  <table className="w-full border-collapse border text-sm">
                     <thead>
                       <tr className="bg-muted">
                         <th className="border p-2 text-left">Vị trí</th>
@@ -301,12 +306,18 @@ export default function TeamDivisionPage() {
                       </tr>
                     </thead>
                     <tbody>
-                      {Object.entries(positionNames).map(([pos, name]) => {
-                        const teamStats = teams.map((team) =>
-                          team.positionStats.find((s) => s.position === pos)
+                      {Object.entries(positionNames).map(([pos]) => {
+                        const teamStats = teams.map(team =>
+                          team.positionStats.find(s => s.position === pos)
                         );
-                        const totalCount = teamStats.reduce((sum, stat) => sum + (stat?.count || 0), 0);
-                        const totalScore = teamStats.reduce((sum, stat) => sum + (stat?.totalScore || 0), 0);
+                        const totalCount = teamStats.reduce(
+                          (sum, stat) => sum + (stat?.count || 0),
+                          0
+                        );
+                        const totalScore = teamStats.reduce(
+                          (sum, stat) => sum + (stat?.totalScore || 0),
+                          0
+                        );
 
                         return (
                           <tr key={pos}>
@@ -330,7 +341,8 @@ export default function TeamDivisionPage() {
                           </td>
                         ))}
                         <td className="border p-2 text-center">
-                          {participants.length} người ({participants.reduce((sum, p) => sum + p.skill, 0)}đ)
+                          {participants.length} người (
+                          {participants.reduce((sum, p) => sum + p.skill, 0)}đ)
                         </td>
                       </tr>
                     </tbody>
@@ -343,29 +355,34 @@ export default function TeamDivisionPage() {
                     <Card key={index}>
                       <CardHeader>
                         <CardTitle className="text-lg">
-                          {team.name} (Tổng điểm: {team.totalScore}, Số người: {team.participants.length})
+                          {team.name} (Tổng điểm: {team.totalScore}, Số người:{' '}
+                          {team.participants.length})
                         </CardTitle>
                       </CardHeader>
                       <CardContent>
                         <div className="space-y-3">
-                          {Object.entries(positionNames).map(([position, positionName]) => {
-                            const positionPlayers = team.participants.filter((p) => p.position === position);
+                          {Object.entries(positionNames).map(([position]) => {
+                            const positionPlayers = team.participants.filter(
+                              p => p.position === position
+                            );
                             return (
                               <div key={position}>
-                                <h4 className="font-semibold text-sm">
+                                <h4 className="text-sm font-semibold">
                                   {getPositionDisplay(position as Position)}:
                                 </h4>
                                 {positionPlayers.length > 0 ? (
-                                  <ul className="list-disc pl-5 space-y-1">
+                                  <ul className="list-disc space-y-1 pl-5">
                                     {positionPlayers.map((member, memberIndex) => (
                                       <li key={memberIndex} className="text-sm">
                                         <span className="font-medium">{member.name}</span>
-                                        <span className="ml-2 text-muted-foreground">({member.skill})</span>
+                                        <span className="ml-2 text-muted-foreground">
+                                          ({member.skill})
+                                        </span>
                                       </li>
                                     ))}
                                   </ul>
                                 ) : (
-                                  <p className="text-destructive text-sm pl-5">Thiếu người chơi</p>
+                                  <p className="pl-5 text-sm text-destructive">Thiếu người chơi</p>
                                 )}
                               </div>
                             );
@@ -378,7 +395,7 @@ export default function TeamDivisionPage() {
 
                 <div className="flex justify-center">
                   <Button variant="outline" onClick={generateTeams} disabled={isLoading}>
-                    <RefreshCw className="h-4 w-4 mr-2" />
+                    <RefreshCw className="mr-2 h-4 w-4" />
                     Tạo lại đội
                   </Button>
                 </div>

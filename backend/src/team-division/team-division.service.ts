@@ -443,7 +443,7 @@ export class TeamDivisionService {
   }
 
   async deleteFormation(id: string): Promise<any> {
-    const _formation = await this.getFormationById(id);
+    await this.getFormationById(id);
 
     return this.prisma.savedFormation.delete({
       where: { id },

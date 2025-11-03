@@ -5,12 +5,12 @@ import { useLogout } from '@/hooks/use-auth';
 import { Button } from '@/components/ui/button';
 import { LogOut, Moon, Sun } from 'lucide-react';
 import { useTheme } from 'next-themes';
-import { WebSocketStatus } from '@/components/websocket/websocket-status';
+
 import { NotificationCenter } from '@/components/notifications/notification-center';
 import { MobileNav } from './mobile-nav';
 
 export function Header() {
-  const { user } = useAuth();
+  useAuth();
   const { theme, setTheme } = useTheme();
   const logoutMutation = useLogout();
 

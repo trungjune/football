@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import { useWebSocketEvent } from '@/hooks/useWebSocket';
 import { toast } from '@/hooks/useToast';
 
@@ -13,7 +12,7 @@ export function useNotificationSystem() {
     }
   });
 
-  useWebSocketEvent('sessionCancellationUpdate', (data: any) => {
+  useWebSocketEvent('sessionCancellationUpdate', () => {
     toast({
       title: 'Hủy đăng ký',
       description: 'Có thành viên đã hủy đăng ký buổi tập',
@@ -38,7 +37,7 @@ export function useNotificationSystem() {
     });
   });
 
-  useWebSocketEvent('paymentNotification', (data: any) => {
+  useWebSocketEvent('paymentNotification', () => {
     toast({
       title: 'Thanh toán mới',
       description: `Có thanh toán mới từ thành viên`,
@@ -46,15 +45,15 @@ export function useNotificationSystem() {
   });
 
   // Member notifications
-  useWebSocketEvent('memberUpdate', (data: any) => {
+  useWebSocketEvent('memberUpdate', () => {
     toast({
       title: 'Cập nhật thành viên',
-      description: data.message || 'Có cập nhật về thành viên',
+      description: 'Có cập nhật về thành viên',
     });
   });
 
   // Team division notifications
-  useWebSocketEvent('teamDivisionUpdate', (data: any) => {
+  useWebSocketEvent('teamDivisionUpdate', () => {
     toast({
       title: 'Chia đội mới',
       description: 'Đã có kết quả chia đội mới',
@@ -77,14 +76,14 @@ export function useNotificationSystem() {
   });
 
   // Admin notifications
-  useWebSocketEvent('adminConnected', (data: any) => {
+  useWebSocketEvent('adminConnected', () => {
     toast({
       title: 'Admin kết nối',
       description: 'Có admin mới kết nối vào hệ thống',
     });
   });
 
-  useWebSocketEvent('adminDisconnected', (data: any) => {
+  useWebSocketEvent('adminDisconnected', () => {
     toast({
       title: 'Admin ngắt kết nối',
       description: 'Có admin đã ngắt kết nối khỏi hệ thống',

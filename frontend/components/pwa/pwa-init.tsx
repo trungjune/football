@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { registerServiceWorker, setupInstallPrompt, onNetworkStatusChange } from '@/lib/pwa';
+import { setupInstallPrompt, onNetworkStatusChange } from '@/lib/pwa';
 import { toast } from '@/hooks/useToast';
 
 export function PWAInit() {

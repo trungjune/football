@@ -50,7 +50,7 @@ export function MonitoringDashboard() {
     cpuUsage: 23,
   });
 
-  const [performanceMetrics, setPerformanceMetrics] = useState<PerformanceMetrics>({
+  const [performanceMetrics] = useState<PerformanceMetrics>({
     pageLoadTime: 1200,
     firstContentfulPaint: 800,
     largestContentfulPaint: 1500,

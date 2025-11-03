@@ -16,7 +16,6 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Loader2 } from 'lucide-react';
-import api from '@/lib/axios';
 
 export default function SignUpPage() {
   const [formData, setFormData] = useState({
