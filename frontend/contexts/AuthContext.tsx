@@ -30,9 +30,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const storedToken = localStorage.getItem('token');
     const storedUser = localStorage.getItem('user');
 
-    if (storedToken && storedUser) {
-      setToken(storedToken);
-      setUser(JSON.parse(storedUser));
+    if (storedToken && storedUser && storedUser !== 'undefined') {
+      try {
+        setToken(storedToken);
+        setUser(JSON.parse(storedUser));
+      } catch (error) {
+        console.error('Lỗi parse dữ liệu user từ localStorage:', error);
+        // Xóa dữ liệu không hợp lệ
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+      }
     }
     setLoading(false);
   }, []);
@@ -43,9 +50,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const storedToken = localStorage.getItem('token');
       const storedUser = localStorage.getItem('user');
 
-      // If user was logged in but localStorage is cleared
-      if ((user || token) && (!storedToken || !storedUser)) {
-        console.log('localStorage cleared, logging out user');
+      // If user was logged in but localStorage is cleared or invalid
+      if ((user || token) && (!storedToken || !storedUser || storedUser === 'undefined')) {
+        console.log('localStorage cleared or invalid, logging out user');
         setToken(null);
         setUser(null);
         router.push('/login?message=Dữ liệu đăng nhập đã bị xóa');
