@@ -22,10 +22,6 @@
   ],
   "routes": [
     {
-      "src": "/api/auth/(.*)",
-      "dest": "/frontend/api/auth/$1"
-    },
-    {
       "src": "/api/(.*)",
       "dest": "/backend/api/index.ts"
     },

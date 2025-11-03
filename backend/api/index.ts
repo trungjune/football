@@ -49,7 +49,7 @@ async function createApp() {
         }),
       );
 
-      // Don't set global prefix here since Vercel routing handles /api
+      // Don't set global prefix since Vercel strips /api from the path
 
       // Swagger setup (only in development)
       if (process.env.NODE_ENV !== 'production') {
@@ -78,10 +78,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     // Add request logging
     console.log(`${req.method} ${req.url}`);
+    console.log('Headers:', req.headers);
 
     const app = await createApp();
     const httpAdapter = app.getHttpAdapter();
     const instance = httpAdapter.getInstance();
+
+    // Vercel strips /api from the path, so we need to add it back
+    const originalUrl = req.url;
+    req.url = originalUrl?.startsWith('/') ? originalUrl : `/${originalUrl}`;
+
+    console.log('Modified URL:', req.url);
 
     // Handle the request
     return instance(req, res);
