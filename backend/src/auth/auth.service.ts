@@ -2,12 +2,12 @@ import { Injectable, UnauthorizedException, ConflictException } from '@nestjs/co
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../prisma/prisma.service';
 import * as bcrypt from 'bcryptjs';
-import { User, Role } from '@prisma/client';
+import { User } from '@prisma/client';
 
 export interface JwtPayload {
   sub: string;
   email: string;
-  role: Role;
+  role: string;
 }
 
 export interface AuthResponse {
@@ -23,32 +23,54 @@ export class AuthService {
   ) {}
 
   async validateUser(email: string, password: string): Promise<any> {
-    const user = await this.prisma.user.findUnique({
-      where: { email },
-      include: {
-        member: true,
-      },
-    });
+    try {
+      console.log('Validating user:', email);
 
-    if (user && user.password && (await bcrypt.compare(password, user.password))) {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { password: _, ...result } = user;
-      return result;
+      const user = await this.prisma.user.findUnique({
+        where: { email },
+        include: {
+          member: true,
+        },
+      });
+
+      console.log('User found:', !!user);
+
+      if (user && user.password && (await bcrypt.compare(password, user.password))) {
+        console.log('Password validation successful');
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { password: _, ...result } = user;
+        return result;
+      }
+
+      console.log('Password validation failed');
+      return null;
+    } catch (error) {
+      console.error('Error validating user:', error);
+      throw error;
     }
-    return null;
   }
 
   async login(user: any): Promise<AuthResponse> {
-    const payload: JwtPayload = {
-      sub: user.id,
-      email: user.email,
-      role: user.role,
-    };
+    try {
+      console.log('Creating JWT for user:', user.id);
 
-    return {
-      user,
-      access_token: this.jwtService.sign(payload),
-    };
+      const payload: JwtPayload = {
+        sub: user.id,
+        email: user.email,
+        role: user.role,
+      };
+
+      const token = this.jwtService.sign(payload);
+      console.log('JWT created successfully');
+
+      return {
+        user,
+        access_token: token,
+      };
+    } catch (error) {
+      console.error('Error creating JWT:', error);
+      throw error;
+    }
   }
 
   async register(email: string, password: string, phone?: string): Promise<AuthResponse> {
@@ -72,7 +94,7 @@ export class AuthService {
         email,
         password: hashedPassword,
         phone,
-        role: Role.MEMBER,
+        role: 'MEMBER',
       },
       include: {
         member: true,

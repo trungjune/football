@@ -1,109 +1,64 @@
 {
   "version": 2,
-  "name": "football-team-manager",
   "builds": [
     {
-      "src": "frontend/package.json",
-      "use": "@vercel/next",
+      "src": "backend/api/index.ts",
+      "use": "@vercel/node",
       "config": {
-        "outputDirectory": "frontend/.next"
+        "includeFiles": [
+          "backend/dist/**",
+          "backend/prisma/**",
+          "backend/node_modules/.prisma/**",
+          "backend/node_modules/@prisma/**",
+          "backend/src/**"
+        ],
+        "maxLambdaSize": "50mb"
       }
     },
     {
-      "src": "backend/package.json",
-      "use": "@vercel/node",
-      "config": {
-        "includeFiles": ["backend/prisma/**", "backend/dist/**"],
-        "excludeFiles": ["backend/src/**/*.spec.ts", "backend/test/**"]
-      }
+      "src": "frontend/package.json",
+      "use": "@vercel/next"
     }
   ],
   "routes": [
     {
-      "src": "/api/health",
-      "dest": "backend/src/main.ts",
-      "headers": {
-        "cache-control": "s-maxage=60"
-      }
+      "src": "/api/auth/(.*)",
+      "dest": "/frontend/api/auth/$1"
     },
     {
       "src": "/api/(.*)",
-      "dest": "backend/src/main.ts",
-      "headers": {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type, Authorization"
-      }
+      "dest": "/backend/api/index.ts"
     },
     {
       "src": "/(.*)",
-      "dest": "frontend/$1"
+      "dest": "/frontend/$1"
     }
   ],
+  "buildCommand": "npm run install:all && cd backend && npx prisma generate && npm run build",
   "env": {
+    "DATABASE_URL": "postgres://postgres.atmpfhxwtfkwygkvduzh:biu74dj2MRtT3t1q@aws-1-ap-southeast-1.pooler.supabase.com:5432/postgres?sslmode=require",
+    "SUPABASE_JWT_SECRET": "ClxHKWChQzAgFLrhCkS8fXmZKfAV7lDsFGiLSGyoI+FbI5mssgKKI7CV6OtD88zArNvVU1Q8QrnltfvJvPGd5w==",
+    "NEXT_PUBLIC_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF0bXBmaHh3dGZrd3lna3ZkdXpoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE2MTgyMDYsImV4cCI6MjA3NzE5NDIwNn0.LjyDSvpKUOv7mqU_A1kECUHPzdJnZf26gx_hQHVAYO0",
+    "JWT_SECRET": "ClxHKWChQzAgFLrhCkS8fXmZKfAV7lDsFGiLSGyoI+FbI5mssgKKI7CV6OtD88zArNvVU1Q8QrnltfvJvPGd5w==",
+    "JWT_EXPIRES_IN": "7d",
     "NODE_ENV": "production",
-    "DATABASE_URL": "@database_url",
-    "JWT_SECRET": "@jwt_secret",
-    "ENCRYPTION_KEY": "@encryption_key",
-    "CLOUDINARY_CLOUD_NAME": "@cloudinary_cloud_name",
-    "CLOUDINARY_API_KEY": "@cloudinary_api_key",
-    "CLOUDINARY_API_SECRET": "@cloudinary_api_secret",
-    "REDIS_URL": "@redis_url",
-    "SENTRY_DSN": "@sentry_dsn"
-  },
-  "functions": {
-    "backend/src/main.ts": {
-      "maxDuration": 30,
-      "memory": 1024,
-      "runtime": "nodejs18.x"
-    }
-  },
-  "regions": ["sin1"],
-  "github": {
-    "silent": false,
-    "autoAlias": true
-  },
-  "crons": [
-    {
-      "path": "/api/cron/cleanup",
-      "schedule": "0 2 * * *"
-    },
-    {
-      "path": "/api/cron/retention-policy",
-      "schedule": "0 3 * * 0"
-    },
-    {
-      "path": "/api/cron/security-cleanup",
-      "schedule": "0 4 * * *"
-    }
-  ],
-  "headers": [
-    {
-      "source": "/api/(.*)",
-      "headers": [
-        {
-          "key": "X-Content-Type-Options",
-          "value": "nosniff"
-        },
-        {
-          "key": "X-Frame-Options",
-          "value": "DENY"
-        },
-        {
-          "key": "X-XSS-Protection",
-          "value": "1; mode=block"
-        },
-        {
-          "key": "Referrer-Policy",
-          "value": "strict-origin-when-cross-origin"
-        }
-      ]
-    }
-  ],
-  "rewrites": [
-    {
-      "source": "/api/:path*",
-      "destination": "/api/:path*"
-    }
-  ]
+    "FRONTEND_URL": "https://football-team-manager-pi.vercel.app",
+    "CORS_ORIGIN": "https://football-team-manager-pi.vercel.app",
+    "BACKEND_API_URL": "https://football-team-manager-pi.vercel.app/api",
+    "BACKEND_URL": "https://football-team-manager-pi.vercel.app",
+    "POSTGRES_URL": "postgres://postgres.atmpfhxwtfkwygkvduzh:biu74dj2MRtT3t1q@aws-1-ap-southeast-1.pooler.supabase.com:6543/postgres?sslmode=require",
+    "POSTGRES_PRISMA_URL": "postgres://postgres.atmpfhxwtfkwygkvduzh:biu74dj2MRtT3t1q@aws-1-ap-southeast-1.pooler.supabase.com:6543/postgres?sslmode=require&pgbouncer=true",
+    "POSTGRES_URL_NON_POOLING": "postgres://postgres.atmpfhxwtfkwygkvduzh:biu74dj2MRtT3t1q@aws-1-ap-southeast-1.pooler.supabase.com:5432/postgres?sslmode=require",
+    "POSTGRES_USER": "postgres",
+    "POSTGRES_PASSWORD": "biu74dj2MRtT3t1q",
+    "POSTGRES_HOST": "db.atmpfhxwtfkwygkvduzh.supabase.co",
+    "POSTGRES_DATABASE": "postgres",
+    "SUPABASE_URL": "https://atmpfhxwtfkwygkvduzh.supabase.co",
+    "NEXT_PUBLIC_SUPABASE_URL": "https://atmpfhxwtfkwygkvduzh.supabase.co",
+    "SUPABASE_SERVICE_ROLE_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF0bXBmaHh3dGZrd3lna3ZkdXpoIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2MTYxODIwNiwiZXhwIjoyMDc3MTk0MjA2fQ.4V2_4sMsaBtbCFiGGd6Nd_CNtltN0svwApU0DrUjkSc",
+    "VERCEL": "1",
+    "PRISMA_CLI_BINARY_TARGETS": "native,rhel-openssl-1.0.x",
+    "NEXTAUTH_SECRET": "ClxHKWChQzAgFLrhCkS8fXmZKfAV7lDsFGiLSGyoI+FbI5mssgKKI7CV6OtD88zArNvVU1Q8QrnltfvJvPGd5w==",
+    "NEXTAUTH_URL": "https://football-team-manager-pi.vercel.app"
+  }
 }
