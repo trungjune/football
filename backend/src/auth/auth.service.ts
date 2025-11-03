@@ -15,6 +15,16 @@ export interface AuthResponse {
   access_token: string;
 }
 
+export interface ValidatedUser {
+  id: string;
+  email: string;
+  role: string;
+  member?: {
+    id: string;
+    name: string;
+  } | null;
+}
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -22,7 +32,7 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async validateUser(email: string, password: string): Promise<any> {
+  async validateUser(email: string, password: string): Promise<ValidatedUser | null> {
     try {
       const user = await this.prisma.user.findUnique({
         where: { email },
@@ -44,7 +54,7 @@ export class AuthService {
     }
   }
 
-  async login(user: any): Promise<AuthResponse> {
+  async login(user: ValidatedUser): Promise<AuthResponse> {
     try {
       const payload: JwtPayload = {
         sub: user.id,

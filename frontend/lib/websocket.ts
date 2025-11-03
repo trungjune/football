@@ -1,5 +1,4 @@
 import { io, Socket } from 'socket.io-client';
-import { getSession } from 'next-auth/react';
 
 class WebSocketService {
   private socket: Socket | null = null;
@@ -13,9 +12,10 @@ class WebSocketService {
     }
 
     try {
-      const session = await getSession();
-      if (!session?.accessToken) {
-        console.warn('No access token available for WebSocket connection');
+      // Lấy token từ localStorage thay vì NextAuth
+      const token = localStorage.getItem('token');
+      if (!token) {
+        console.warn('Không có token xác thực cho WebSocket connection');
         return null;
       }
 
@@ -23,7 +23,7 @@ class WebSocketService {
 
       this.socket = io(serverUrl, {
         auth: {
-          token: session.accessToken,
+          token: token,
         },
         transports: ['websocket', 'polling'],
         timeout: 20000,
@@ -34,7 +34,7 @@ class WebSocketService {
 
       return this.socket;
     } catch (error) {
-      console.error('Failed to connect to WebSocket:', error);
+      console.error('Lỗi kết nối WebSocket:', error);
       return null;
     }
   }

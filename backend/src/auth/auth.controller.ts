@@ -27,7 +27,7 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @Post('login')
   @HttpCode(HttpStatus.OK)
-  async login(@Request() req: AuthenticatedRequest, @Body() _loginDto: LoginDto) {
+  async login(@Request() req: AuthenticatedRequest) {
     return this.authService.login(req.user);
   }
 
@@ -84,7 +84,7 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @Post('logout')
   @HttpCode(HttpStatus.OK)
-  async logout(@Request() req: AuthenticatedRequest) {
+  async logout() {
     // In a stateless JWT system, logout is handled client-side
     // But we can log the action for audit purposes
     return { message: 'Logout successful' };

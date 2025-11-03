@@ -11,7 +11,6 @@ import {
 } from 'class-validator';
 
 // Using string literals to avoid Prisma enum import issues
-type Position = 'GOALKEEPER' | 'DEFENDER' | 'MIDFIELDER' | 'FORWARD';
 type MemberType = 'OFFICIAL' | 'TRIAL' | 'GUEST';
 type MemberStatus = 'ACTIVE' | 'INACTIVE' | 'LEFT';
 type PreferredFoot = 'LEFT' | 'RIGHT';
