@@ -10,7 +10,9 @@
           "backend/prisma/**",
           "backend/node_modules/.prisma/**",
           "backend/node_modules/@prisma/**",
-          "backend/src/**"
+          "backend/node_modules/@football-manager/**",
+          "backend/src/**",
+          "shared/**"
         ],
         "maxLambdaSize": "50mb"
       }
