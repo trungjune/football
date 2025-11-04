@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/dialog';
 import { Bell, Check, Trash2 } from 'lucide-react';
 import { useNotifications } from '@/hooks/useWebSocket';
+import { formatDate } from '@shared/utils/date';
 
 export function NotificationCenter() {
   const { notifications, unreadCount, clearNotifications, markAsRead } = useNotifications();
@@ -26,7 +27,7 @@ export function NotificationCenter() {
     if (diffInMinutes < 1) return 'Vừa xong';
     if (diffInMinutes < 60) return `${diffInMinutes} phút trước`;
     if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)} giờ trước`;
-    return date.toLocaleDateString('vi-VN');
+    return formatDate(date);
   };
 
   const getNotificationIcon = (type?: string) => {

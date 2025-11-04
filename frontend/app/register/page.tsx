@@ -13,7 +13,7 @@ export default function RegisterPage() {
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    registerMutation.mutate({ email, password, phone });
+    registerMutation.mutate({ email, password, phone, fullName: email.split('@')[0] });
   };
 
   return (

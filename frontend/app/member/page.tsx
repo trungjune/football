@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Calendar, DollarSign, User, Clock } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useQuery } from '@tanstack/react-query';
+import { formatDate, formatFullDate } from '@shared/utils/date';
 
 function useMemberData() {
   const { user } = useAuth();
@@ -199,14 +200,7 @@ export default function MemberPage() {
                         <div>
                           <p className="font-medium">{session.title}</p>
                           <p className="text-sm text-muted-foreground">
-                            {new Date(session.datetime).toLocaleDateString('vi-VN', {
-                              weekday: 'long',
-                              year: 'numeric',
-                              month: 'long',
-                              day: 'numeric',
-                              hour: '2-digit',
-                              minute: '2-digit',
-                            })}
+                            {formatFullDate(session.datetime)}
                           </p>
                           <p className="text-sm text-muted-foreground">{session.location}</p>
                         </div>
@@ -247,7 +241,7 @@ export default function MemberPage() {
                       <div>
                         <p className="font-medium">{payment.fee.title}</p>
                         <p className="text-sm text-muted-foreground">
-                          Thanh toán ngày {new Date(payment.paidAt).toLocaleDateString('vi-VN')}
+                          Thanh toán ngày {formatDate(payment.paidAt)}
                         </p>
                       </div>
                       <div className="text-right">

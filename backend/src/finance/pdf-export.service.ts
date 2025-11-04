@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import * as puppeteer from 'puppeteer';
 import * as ExcelJS from 'exceljs';
 import { formatCurrency } from '@shared/utils/format';
+import { formatDate } from '@shared/utils/date';
 
 @Injectable()
 export class PdfExportService {
@@ -73,7 +74,7 @@ export class PdfExportService {
 
     // Header
     summarySheet.addRow(['BÁO CÁO TÀI CHÍNH FC VUI VẺ']);
-    summarySheet.addRow([`Ngày xuất: ${new Date().toLocaleDateString('vi-VN')}`]);
+    summarySheet.addRow([`Ngày xuất: ${formatDate(new Date())}`]);
     summarySheet.addRow([]);
 
     // Tổng quan
@@ -98,8 +99,8 @@ export class PdfExportService {
       summarySheet.addRow([
         this.translateFeeType(type),
         data.count,
-        this.formatCurrency(data.expectedAmount),
-        this.formatCurrency(data.actualAmount),
+        formatCurrency(data.expectedAmount),
+        formatCurrency(data.actualAmount),
       ]);
     });
 
@@ -114,7 +115,7 @@ export class PdfExportService {
         summarySheet.addRow([
           this.translatePaymentMethod(method),
           data.count,
-          this.formatCurrency(data.amount),
+          formatCurrency(data.amount),
         ]);
       },
     );
@@ -214,21 +215,21 @@ export class PdfExportService {
         <div class="header">
           <h1>BÁO CÁO TÀI CHÍNH</h1>
           <p><strong>FC VUI VẺ - ĐỘI BÓNG SÂN 7</strong></p>
-          <p>Ngày xuất báo cáo: ${new Date().toLocaleDateString('vi-VN')}</p>
+          <p>Ngày xuất báo cáo: ${formatDate(new Date())}</p>
         </div>
 
         <div class="summary">
           <div class="summary-card">
             <h3>Tổng thu dự kiến</h3>
-            <div class="amount">${this.formatCurrency(data.summary.totalExpectedRevenue)}</div>
+            <div class="amount">${formatCurrency(data.summary.totalExpectedRevenue)}</div>
           </div>
           <div class="summary-card">
             <h3>Tổng thu thực tế</h3>
-            <div class="amount">${this.formatCurrency(data.summary.totalActualRevenue)}</div>
+            <div class="amount">${formatCurrency(data.summary.totalActualRevenue)}</div>
           </div>
           <div class="summary-card">
             <h3>Tổng công nợ</h3>
-            <div class="amount">${this.formatCurrency(data.summary.totalOutstanding)}</div>
+            <div class="amount">${formatCurrency(data.summary.totalOutstanding)}</div>
           </div>
           <div class="summary-card">
             <h3>Tỷ lệ thu</h3>
@@ -254,8 +255,8 @@ export class PdfExportService {
                 <tr>
                   <td>${this.translateFeeType(type)}</td>
                   <td>${breakdown.count}</td>
-                  <td class="text-right">${this.formatCurrency(breakdown.expectedAmount)}</td>
-                  <td class="text-right">${this.formatCurrency(breakdown.actualAmount)}</td>
+                  <td class="text-right">${formatCurrency(breakdown.expectedAmount)}</td>
+                  <td class="text-right">${formatCurrency(breakdown.actualAmount)}</td>
                 </tr>
               `,
                 )
@@ -281,7 +282,7 @@ export class PdfExportService {
                 <tr>
                   <td>${this.translatePaymentMethod(method)}</td>
                   <td>${breakdown.count}</td>
-                  <td class="text-right">${this.formatCurrency(breakdown.amount)}</td>
+                  <td class="text-right">${formatCurrency(breakdown.amount)}</td>
                 </tr>
               `,
                 )
@@ -379,12 +380,12 @@ export class PdfExportService {
         <div class="header">
           <h1>BÁO CÁO CÔNG NỢ</h1>
           <p><strong>FC VUI VẺ - ĐỘI BÓNG SÂN 7</strong></p>
-          <p>Ngày xuất báo cáo: ${new Date().toLocaleDateString('vi-VN')}</p>
+          <p>Ngày xuất báo cáo: ${formatDate(new Date())}</p>
         </div>
 
         <div class="summary">
           <h3>Tổng công nợ</h3>
-          <div class="amount">${this.formatCurrency(totalDebt)}</div>
+          <div class="amount">${formatCurrency(totalDebt)}</div>
           <p>Số thành viên có nợ: ${debtData.length}</p>
         </div>
 
@@ -404,7 +405,7 @@ export class PdfExportService {
               <tr class="${item.totalDebt > 500000 ? 'debt-high' : ''}">
                 <td>${item.member.fullName}</td>
                 <td>${item.member.email}</td>
-                <td class="text-right">${this.formatCurrency(item.totalDebt)}</td>
+                <td class="text-right">${formatCurrency(item.totalDebt)}</td>
                 <td>${item.unpaidFees.length}</td>
               </tr>
             `,

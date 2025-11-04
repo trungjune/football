@@ -16,6 +16,7 @@ import { Badge } from '@/components/ui/badge';
 import { Search, Plus, Edit, Trash2, Calendar, MapPin, Users, Clock } from 'lucide-react';
 import api from '@/lib/axios';
 import { SessionForm } from '@/components/sessions/session-form';
+import { formatDateTime } from '@shared/utils/date';
 
 interface Session {
   id: string;
@@ -162,17 +163,6 @@ export default function SessionsPage() {
       default:
         return 'text-gray-600';
     }
-  };
-
-  const formatDateTime = (datetime: string) => {
-    return new Date(datetime).toLocaleDateString('vi-VN', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
   };
 
   const stats = {

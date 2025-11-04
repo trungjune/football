@@ -57,33 +57,33 @@
   - Ensure utilities work properly trong cả browser và Node.js environments
   - _Requirements: 5.4, 6.4_
 
-- [ ] 4.2 Create specialized utility modules
+- [x] 4.2 Create specialized utility modules
   - Tách date utilities vào shared/src/utils/date.ts
   - Tách validation utilities vào shared/src/utils/validation.ts
   - Tách string utilities vào shared/src/utils/string.ts
   - Setup barrel exports cho utils modules
   - _Requirements: 1.3, 5.4_
 
-- [ ] 4.3 Remove duplicate utility logic
+- [x] 4.3 Remove duplicate utility logic
   - Identify và remove duplicate date formatting functions từ components
   - Consolidate validation regex patterns
   - Remove unused utility functions
   - _Requirements: 5.1, 5.2, 5.4_
 
 - [ ] 5. Refactor frontend structure
-- [ ] 5.1 Restructure frontend types
+- [x] 5.1 Restructure frontend types
   - Tạo frontend/src/types với component, hook, page-specific types
   - Move component prop types từ component files vào dedicated type files
   - Setup barrel exports cho frontend types
   - _Requirements: 1.1, 2.1_
 
-- [ ] 5.2 Consolidate frontend constants
+- [x] 5.2 Consolidate frontend constants
   - Tạo frontend/src/constants với routes, UI, storage constants
   - Move route constants từ middleware và components
   - Move localStorage keys và UI constants vào dedicated files
   - _Requirements: 1.2, 2.2_
 
-- [ ] 5.3 Restructure hooks theo categories
+- [x] 5.3 Restructure hooks theo categories
   - Tạo frontend/src/hooks/api cho API-related hooks
   - Tạo frontend/src/hooks/ui cho UI-related hooks
   - Tạo frontend/src/hooks/utils cho utility hooks
@@ -130,7 +130,7 @@
   - _Requirements: 4.1, 4.2, 4.3_
 
 - [ ] 7. Clean up unused code
-- [ ] 7.1 Remove unused imports
+- [x] 7.1 Remove unused imports
   - Scan tất cả TypeScript files để detect unused imports
   - Remove unused imports từ cả frontend và backend
   - Update import statements để sử dụng new barrel exports
@@ -169,7 +169,7 @@
   - _Requirements: 6.1, 6.2_
 
 - [ ] 9. Testing và validation
-- [ ] 9.1 Run type checking
+- [-] 9.1 Run type checking
   - Run TypeScript compiler cho cả frontend và backend
   - Fix any type errors introduced during refactor
   - Ensure shared types work properly trong cả environments

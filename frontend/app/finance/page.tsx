@@ -27,6 +27,7 @@ import {
 import api from '@/lib/axios';
 import { FeeForm } from '@/components/finance/fee-form';
 import { PaymentForm } from '@/components/finance/payment-form';
+import { formatDate } from '@shared/utils/date';
 
 interface Fee {
   id: string;
@@ -235,9 +236,9 @@ export default function FinancePage() {
     }).format(amount);
   };
 
-  const formatDate = (dateString?: string) => {
+  const formatDateOrDefault = (dateString?: string) => {
     if (!dateString) return 'Chưa có';
-    return new Date(dateString).toLocaleDateString('vi-VN');
+    return formatDate(dateString);
   };
 
   // Calculate statistics
@@ -439,7 +440,7 @@ export default function FinancePage() {
                                 {fee.dueDate && (
                                   <div>
                                     <span className="font-medium">Hạn cuối: </span>
-                                    <span>{formatDate(fee.dueDate)}</span>
+                                    <span>{formatDateOrDefault(fee.dueDate)}</span>
                                   </div>
                                 )}
                               </div>
@@ -574,7 +575,7 @@ export default function FinancePage() {
 
                               <div>
                                 <span className="font-medium">Ngày thanh toán: </span>
-                                <span>{formatDate(payment.paidAt)}</span>
+                                <span>{formatDateOrDefault(payment.paidAt)}</span>
                               </div>
                             </div>
                           </div>
