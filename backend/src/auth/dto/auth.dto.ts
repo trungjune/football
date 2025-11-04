@@ -5,7 +5,7 @@ import {
   RegisterRequest,
   UpdateProfileRequest,
   ChangePasswordRequest,
-} from '@football-manager/shared';
+} from '../../shared-types';
 
 export class LoginDto implements LoginRequest {
   @ApiProperty({ example: 'admin@football.com' })

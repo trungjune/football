@@ -10,7 +10,7 @@ import {
   IsNotEmpty,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { SessionType, AttendanceStatus } from '@football-manager/shared';
+import { SessionType, AttendanceStatus } from '../../shared-types';
 
 export class CreateSessionDto {
   @ApiProperty({ example: 'Buổi tập thứ 7' })

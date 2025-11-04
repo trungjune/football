@@ -13,7 +13,7 @@ import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagg
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { RolesGuard } from '../guards/roles.guard';
 import { Roles } from '../decorators/roles.decorator';
-import { UserRole as Role } from '@football-manager/shared';
+import { UserRole as Role } from '../../shared-types';
 import { SecurityService, SecurityEvent } from '../services/security.service';
 import { RateLimitService } from '../services/rate-limit.service';
 import { AuditService } from '../services/audit.service';

@@ -3,7 +3,7 @@ import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagg
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
-import { UserRole as Role } from '@football-manager/shared';
+import { UserRole as Role } from '../shared-types';
 import { BackupService } from './backup.service';
 
 @ApiTags('Backup')
