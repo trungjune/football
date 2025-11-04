@@ -19,7 +19,7 @@ export interface UseFormResult<T> {
   values: T;
   errors: Partial<Record<keyof T, string>>;
   touched: Partial<Record<keyof T, boolean>>;
-  handleChange: (field: keyof T, value: any) => void;
+  handleChange: (field: keyof T, value: unknown) => void;
   handleBlur: (field: keyof T) => void;
   handleSubmit: (e: React.FormEvent) => void;
   reset: () => void;

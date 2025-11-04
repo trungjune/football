@@ -11,12 +11,12 @@ export interface DashboardPageData {
     totalRevenue: number;
     pendingPayments: number;
   };
-  recentSessions: any[];
-  recentPayments: any[];
+  recentSessions: Record<string, unknown>[];
+  recentPayments: Record<string, unknown>[];
 }
 
 export interface MembersPageData {
-  members: any[];
+  members: Record<string, unknown>[];
   totalCount: number;
   filters: {
     search: string;
@@ -26,7 +26,7 @@ export interface MembersPageData {
 }
 
 export interface SessionsPageData {
-  sessions: any[];
+  sessions: Record<string, unknown>[];
   totalCount: number;
   filters: {
     search: string;
@@ -38,8 +38,8 @@ export interface SessionsPageData {
 }
 
 export interface FinancePageData {
-  fees: any[];
-  payments: any[];
+  fees: Record<string, unknown>[];
+  payments: Record<string, unknown>[];
   summary: {
     totalRevenue: number;
     totalExpenses: number;
@@ -54,9 +54,9 @@ export interface FinancePageData {
 }
 
 export interface MemberProfileData {
-  member: any;
-  sessions: any[];
-  payments: any[];
+  member: Record<string, unknown>;
+  sessions: Record<string, unknown>[];
+  payments: Record<string, unknown>[];
   stats: {
     totalSessions: number;
     totalPayments: number;

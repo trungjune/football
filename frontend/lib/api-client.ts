@@ -3,16 +3,12 @@ import { User } from '@shared/types/entities/user';
 import { LoginRequest, RegisterRequest, AuthResponse } from '@shared/types/api/auth';
 import { API_ENDPOINTS } from '@shared/constants/api';
 
-// Debug environment
-console.log('NODE_ENV:', process.env.NODE_ENV);
-console.log(
-  'API baseURL will be:',
-  process.env.NODE_ENV === 'production' ? 'https://football-team-manager-pi.vercel.app/api' : '/api'
-);
-
 // Create axios instance
 export const apiClient = axios.create({
-  baseURL: 'https://football-team-manager-pi.vercel.app/api', // Force production URL
+  baseURL:
+    process.env.NODE_ENV === 'production'
+      ? 'https://football-team-manager-pi.vercel.app/api'
+      : '/api',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
@@ -37,14 +33,11 @@ apiClient.interceptors.request.use(
 apiClient.interceptors.response.use(
   response => response,
   error => {
-    console.log('API Error:', error.response?.status, error.response?.data);
-
     if (error.response?.status === 401) {
       const token = localStorage.getItem('token');
 
       // Only redirect if user was already logged in (has token)
       if (token) {
-        console.log('Token expired, clearing session and redirecting to login');
         localStorage.removeItem('token');
         localStorage.removeItem('user');
 
@@ -55,7 +48,6 @@ apiClient.interceptors.response.use(
 
         window.location.href = '/login?message=Phiên đăng nhập đã hết hạn';
       } else {
-        console.log('Login failed - no redirect needed');
       }
     }
     return Promise.reject(error);
@@ -76,14 +68,10 @@ export type { Fee, Payment } from '@shared/types/entities/fee';
 // Auth API functions
 export const authApi = {
   login: async (data: LoginRequest): Promise<AuthResponse> => {
-    console.log('Login request:', data);
-    console.log('API baseURL:', apiClient.defaults.baseURL);
     try {
       const response = await apiClient.post(API_ENDPOINTS.AUTH.LOGIN, data);
-      console.log('Login response:', response.data);
       return response.data;
     } catch (error) {
-      console.error('Login error:', error);
       throw error;
     }
   },

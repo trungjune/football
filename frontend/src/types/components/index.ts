@@ -33,9 +33,9 @@ export interface ModalProps extends BaseComponentProps {
 }
 
 export interface FormProps extends BaseComponentProps {
-  onSubmit: (data: any) => void;
+  onSubmit: (data: Record<string, unknown>) => void;
   isSubmitting?: boolean;
-  initialData?: any;
+  initialData?: Record<string, unknown>;
 }
 
 export interface TableProps<T> extends BaseComponentProps {
@@ -48,7 +48,7 @@ export interface TableProps<T> extends BaseComponentProps {
 export interface TableColumn<T> {
   key: keyof T;
   header: string;
-  render?: (value: any, item: T) => React.ReactNode;
+  render?: (value: unknown, item: T) => React.ReactNode;
   sortable?: boolean;
   width?: string;
 }

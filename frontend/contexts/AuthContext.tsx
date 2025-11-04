@@ -26,24 +26,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const storedToken = localStorage.getItem('token');
       const storedUser = localStorage.getItem('user');
 
-      console.log('AuthContext: Checking localStorage', {
-        hasToken: !!storedToken,
-        hasUser: !!storedUser,
-        userValue: storedUser,
-      });
-
       if (storedToken && storedUser && storedUser !== 'undefined' && storedUser !== 'null') {
         try {
           const parsedUser = JSON.parse(storedUser);
-          console.log('AuthContext: Parsed user from localStorage:', parsedUser);
 
           // Kiểm tra xem parsedUser có hợp lệ không
           if (parsedUser && typeof parsedUser === 'object' && parsedUser.id && parsedUser.email) {
-            console.log('AuthContext: Valid user data found, setting auth state');
             setToken(storedToken);
             setUser(parsedUser);
           } else {
-            console.log('AuthContext: Invalid user data structure, clearing localStorage');
             localStorage.removeItem('token');
             localStorage.removeItem('user');
           }
@@ -54,15 +45,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           localStorage.removeItem('user');
         }
       } else {
-        console.log('AuthContext: No valid auth data in localStorage', {
-          hasToken: !!storedToken,
-          hasUser: !!storedUser,
-          userValue: storedUser,
-        });
-
         // Clear any invalid data
         if (storedUser === 'undefined' || storedUser === 'null') {
-          console.log('AuthContext: Clearing corrupted user data');
           localStorage.removeItem('token');
           localStorage.removeItem('user');
         }
@@ -82,7 +66,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       // If user was logged in but localStorage is cleared or invalid
       if ((user || token) && (!storedToken || !storedUser || storedUser === 'undefined')) {
-        console.log('localStorage cleared or invalid, logging out user');
         setToken(null);
         setUser(null);
         router.push('/login?message=Dữ liệu đăng nhập đã bị xóa');
