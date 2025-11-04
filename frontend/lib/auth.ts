@@ -1,13 +1,14 @@
-import { NextAuthOptions } from 'next-auth';
-import CredentialsProvider from 'next-auth/providers/credentials';
-
-enum Role {
-  ADMIN = 'ADMIN',
-  MEMBER = 'MEMBER',
-}
-
 // NextAuth configuration - DISABLED for custom auth
 // Using custom AuthContext instead
+
+// Commented out to avoid unused imports
+// import { NextAuthOptions } from 'next-auth';
+// import CredentialsProvider from 'next-auth/providers/credentials';
+
+// enum Role {
+//   ADMIN = 'ADMIN',
+//   MEMBER = 'MEMBER',
+// }
 
 /*
 export const authOptions: NextAuthOptions = {
