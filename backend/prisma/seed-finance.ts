@@ -576,17 +576,39 @@ export async function seedFinanceData() {
       // Hash default password
       const hashedPassword = await bcrypt.hash('password123', 10);
 
-      // Tạo user
-      const user = await prisma.user.upsert({
-        where: { email },
-        update: {},
-        create: {
-          email,
-          password: hashedPassword,
-          phone: memberData.phone,
-          role: memberData.role?.includes('Chủ tịch') ? 'ADMIN' : 'MEMBER',
-        },
-      });
+      // Tạo user - handle phone unique constraint
+      let user;
+      try {
+        user = await prisma.user.upsert({
+          where: { email },
+          update: {},
+          create: {
+            email,
+            password: hashedPassword,
+            phone: memberData.phone || null,
+            role: memberData.role?.includes('Chủ tịch') ? 'ADMIN' : 'MEMBER',
+          },
+        });
+      } catch (error: any) {
+        if (error.code === 'P2002' && error.meta?.target?.includes('phone')) {
+          // Phone already exists, create user without phone
+          user = await prisma.user.upsert({
+            where: { email },
+            update: {},
+            create: {
+              email,
+              password: hashedPassword,
+              phone: null, // Skip phone to avoid conflict
+              role: memberData.role?.includes('Chủ tịch') ? 'ADMIN' : 'MEMBER',
+            },
+          });
+          console.log(
+            `⚠️ Phone ${memberData.phone} already exists, created user without phone for ${email}`,
+          );
+        } else {
+          throw error;
+        }
+      }
 
       // Tạo member
       const member = await prisma.member.upsert({

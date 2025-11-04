@@ -2,29 +2,33 @@
 
 ## ⚠️ QUY TRÌNH BẮT BUỘC TRƯỚC KHI COMMIT
 
-### 1. KIỂM TRA BUILD CẢ BACKEND VÀ FRONTEND
+### 1. KIỂM TRA VÀ SỬA TẤT CẢ LỖI TRƯỚC
 
 ```bash
-# Backend
+# Backend - KIỂM TRA KỸ LƯỠNG
 cd backend
 npm run lint
 npm run build
+# Nếu có lỗi database/seed, kiểm tra và sửa trước khi commit
 
-# Frontend
+# Frontend - KIỂM TRA KỸ LƯỠNG
 cd frontend
 npm run lint
 npm run type-check
 npm run build
 ```
 
-### 2. CHỈ COMMIT KHI TẤT CẢ PASS
+### 2. CHỈ COMMIT KHI TẤT CẢ PASS VÀ KHÔNG CÒN LỖI
 
 - ✅ Backend lint pass
 - ✅ Backend type-check pass (trong build)
 - ✅ Backend build pass
+- ✅ Database/Prisma không có lỗi
+- ✅ Seed scripts chạy thành công (nếu có)
 - ✅ Frontend lint pass
 - ✅ Frontend type-check pass
 - ✅ Frontend build pass
+- ✅ Tất cả dependencies được cài đặt đúng
 
 ### 3. DEPLOYMENT PROCESS
 
@@ -43,6 +47,8 @@ git push origin main
 3. **KHÔNG BAO GIỜ** chạy `vercel --prod` sau khi push (Vercel auto-deploy)
 4. **KHÔNG** vội vàng bỏ qua bước kiểm tra
 5. **KHÔNG** quên rằng Vercel tự động deploy sau mỗi push
+6. **KHÔNG** commit khi còn lỗi database/Prisma
+7. **KHÔNG** vội vàng - LUÔN KIỂM TRA KỸ TRƯỚC KHI COMMIT
 
 ## ✅ LUÔN NHỚ
 
