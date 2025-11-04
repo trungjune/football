@@ -1,6 +1,6 @@
 import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { UserRole as Role } from '@shared/enums';
+import { UserRole as Role } from '@football-manager/shared';
 import { ROLES_KEY } from '../decorators/roles.decorator';
 
 @Injectable()

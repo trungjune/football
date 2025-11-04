@@ -1,8 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import * as puppeteer from 'puppeteer';
 import * as ExcelJS from 'exceljs';
-import { formatCurrency } from '@shared/utils/format';
-import { formatDate } from '@shared/utils/date';
+import { formatCurrency, formatDate } from '@football-manager/shared';
 
 @Injectable()
 export class PdfExportService {
