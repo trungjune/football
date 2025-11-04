@@ -29,12 +29,27 @@ export function middleware(request: NextRequest) {
   // Kiểm tra token từ cookie
   const token = request.cookies.get('token')?.value;
 
+  console.log('Middleware check:', {
+    pathname,
+    hasToken: !!token,
+    tokenValue: token ? 'present' : 'missing',
+    allCookies: Object.fromEntries(request.cookies.entries()),
+  });
+
+  // Skip middleware cho NextAuth routes
+  if (pathname.startsWith('/api/auth/')) {
+    return NextResponse.next();
+  }
+
   // Nếu không có token và đang truy cập route bảo vệ
   if (!token && !pathname.startsWith('/api/')) {
+    console.log('Middleware: No token found, redirecting to login for:', pathname);
     const loginUrl = new URL('/login', request.url);
     loginUrl.searchParams.set('redirect', pathname);
     return NextResponse.redirect(loginUrl);
   }
+
+  console.log('Middleware: Token found, allowing access to:', pathname);
 
   // Cho phép tiếp tục
   return NextResponse.next();

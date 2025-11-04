@@ -146,8 +146,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const userString = JSON.stringify(newUser);
       localStorage.setItem('user', userString);
 
-      // Also set cookie for middleware
-      document.cookie = `token=${newToken}; path=/; max-age=86400; SameSite=Lax`;
+      // Set cookie for middleware (more explicit)
+      const cookieValue = `token=${newToken}; path=/; max-age=604800; SameSite=Lax; Secure=${window.location.protocol === 'https:'}`;
+      document.cookie = cookieValue;
+      console.log('AuthContext: Set cookie:', cookieValue);
 
       // Verify data was saved correctly
       const savedToken = localStorage.getItem('token');

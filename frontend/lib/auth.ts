@@ -6,6 +6,10 @@ enum Role {
   MEMBER = 'MEMBER',
 }
 
+// NextAuth configuration - DISABLED for custom auth
+// Using custom AuthContext instead
+
+/*
 export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
@@ -82,3 +86,7 @@ export const authOptions: NextAuthOptions = {
     signIn: '/auth/signin',
   },
 };
+*/
+
+// Placeholder export to avoid import errors
+export const authOptions = null;
