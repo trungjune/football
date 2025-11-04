@@ -40,25 +40,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (storedToken && storedUser && storedUser !== 'undefined' && storedUser !== 'null') {
         try {
           const parsedUser = JSON.parse(storedUser);
-          console.log('AuthContext: Setting user from localStorage', parsedUser);
+          console.log('AuthContext: Parsed user from localStorage:', parsedUser);
 
           // Kiểm tra xem parsedUser có hợp lệ không
-          if (parsedUser && typeof parsedUser === 'object' && parsedUser.id) {
+          if (parsedUser && typeof parsedUser === 'object' && parsedUser.id && parsedUser.email) {
+            console.log('AuthContext: Valid user data found, setting auth state');
             setToken(storedToken);
             setUser(parsedUser);
           } else {
-            console.log('AuthContext: Invalid user data, clearing localStorage');
+            console.log('AuthContext: Invalid user data structure, clearing localStorage');
             localStorage.removeItem('token');
             localStorage.removeItem('user');
           }
         } catch (error) {
-          console.error('Lỗi parse dữ liệu user từ localStorage:', error);
+          console.error('AuthContext: Error parsing user data from localStorage:', error);
           // Xóa dữ liệu không hợp lệ
           localStorage.removeItem('token');
           localStorage.removeItem('user');
         }
       } else {
-        console.log('AuthContext: No valid auth data in localStorage');
+        console.log('AuthContext: No valid auth data in localStorage', {
+          hasToken: !!storedToken,
+          hasUser: !!storedUser,
+          userValue: storedUser,
+        });
+
+        // Clear any invalid data
+        if (storedUser === 'undefined' || storedUser === 'null') {
+          console.log('AuthContext: Clearing corrupted user data');
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+        }
       }
     } catch (error) {
       console.error('AuthContext: Error accessing localStorage:', error);
@@ -95,14 +107,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [user, token, router]);
 
   const login = (newToken: string, newUser: User) => {
-    console.log('AuthContext: Login called with token and user:', {
-      token: newToken,
+    console.log('AuthContext: Login called with:', {
+      token: newToken ? 'present' : 'missing',
       user: newUser,
+      userType: typeof newUser,
+      hasId: newUser?.id ? 'yes' : 'no',
+      hasEmail: newUser?.email ? 'yes' : 'no',
     });
 
     // Kiểm tra dữ liệu đầu vào
-    if (!newToken || !newUser || !newUser.id) {
-      console.error('AuthContext: Invalid login data provided');
+    if (!newToken || !newUser || !newUser.id || !newUser.email) {
+      console.error('AuthContext: Invalid login data provided:', {
+        token: !!newToken,
+        user: !!newUser,
+        userId: newUser?.id,
+        userEmail: newUser?.email,
+      });
       return;
     }
 
@@ -115,22 +135,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       console.error('AuthContext: Error clearing localStorage:', error);
     }
 
-    // Cập nhật state
+    // Cập nhật state trước
     setToken(newToken);
     setUser(newUser);
+    console.log('AuthContext: Updated state with new auth data');
 
     // Lưu dữ liệu mới vào localStorage
     try {
       localStorage.setItem('token', newToken);
-      localStorage.setItem('user', JSON.stringify(newUser));
+      const userString = JSON.stringify(newUser);
+      localStorage.setItem('user', userString);
 
       // Also set cookie for middleware
       document.cookie = `token=${newToken}; path=/; max-age=86400; SameSite=Lax`;
 
-      console.log('AuthContext: Token and user saved successfully:', {
-        tokenSaved: !!localStorage.getItem('token'),
-        userSaved: !!localStorage.getItem('user'),
-        userValue: localStorage.getItem('user'),
+      // Verify data was saved correctly
+      const savedToken = localStorage.getItem('token');
+      const savedUser = localStorage.getItem('user');
+
+      console.log('AuthContext: Data saved to localStorage:', {
+        tokenSaved: savedToken === newToken,
+        userSaved: !!savedUser,
+        userValue: savedUser,
+        canParse: (() => {
+          try {
+            const parsed = JSON.parse(savedUser || '');
+            return !!parsed.id;
+          } catch {
+            return false;
+          }
+        })(),
       });
     } catch (error) {
       console.error('AuthContext: Error saving to localStorage:', error);
