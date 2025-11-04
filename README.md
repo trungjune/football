@@ -480,3 +480,145 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - Built with modern web technologies
 - Inspired by real football team management needs
 - Community-driven development
+
+## 🏗️ Architecture & Code Organization
+
+### Shared Package Structure
+
+The project uses a shared package to maintain consistency between frontend and backend:
+
+```
+shared/
+├── src/
+│   ├── types/              # Shared TypeScript types
+│   │   ├── entities/       # Entity types (User, Member, Session, Fee)
+│   │   ├── api/           # API request/response types
+│   │   └── common/        # Common utility types
+│   ├── constants/         # Shared constants
+│   │   ├── api.ts         # API endpoints, HTTP status codes
+│   │   ├── app.ts         # Application-wide constants
+│   │   └── validation.ts  # Validation rules and regex patterns
+│   ├── enums/            # Shared enums (UserRole, Position, SessionType, etc.)
+│   ├── utils/            # Shared utility functions
+│   │   ├── date.ts       # Date formatting and manipulation
+│   │   ├── format.ts     # Currency, number, text formatting
+│   │   ├── validation.ts # Email, phone, data validation
+│   │   └── string.ts     # String manipulation utilities
+│   └── schemas/          # Zod validation schemas
+```
+
+### Import Patterns
+
+#### Shared Package Imports
+
+```typescript
+// Types
+import { User, Member, Session } from '@shared/types/entities';
+import { LoginRequest, ApiResponse } from '@shared/types/api';
+
+// Constants
+import { API_ENDPOINTS, HTTP_STATUS } from '@shared/constants/api';
+import { APP_CONFIG, PAGINATION } from '@shared/constants/app';
+
+// Utilities
+import { formatDate, formatCurrency } from '@shared/utils';
+import { validateEmail, validatePhone } from '@shared/utils/validation';
+
+// Enums
+import { UserRole, Position, SessionType } from '@shared/enums';
+```
+
+#### Frontend Imports
+
+```typescript
+// Components
+import { Button } from '@/components/ui/button';
+import { MemberForm } from '@/components/features/members';
+
+// Hooks
+import { useAuth, useMembers } from '@/hooks/api';
+import { useToast } from '@/hooks/ui';
+
+// Types
+import { ComponentProps, PageProps } from '@/types';
+
+// Constants
+import { ROUTES, STORAGE_KEYS } from '@/constants';
+```
+
+#### Backend Imports
+
+```typescript
+// Shared types in DTOs
+import { LoginRequest, CreateMemberRequest } from '@shared/types/api';
+import { UserRole } from '@shared/enums';
+
+// Utilities
+import { formatCurrency, formatDate } from '@shared/utils';
+
+// Local modules
+import { AuthService } from '@/auth/auth.service';
+import { JwtAuthGuard } from '@/common/guards';
+```
+
+### Path Aliases Configuration
+
+#### Frontend (tsconfig.json)
+
+```json
+{
+  "compilerOptions": {
+    "paths": {
+      "@shared": ["../shared/src"],
+      "@shared/*": ["../shared/src/*"],
+      "@/components/*": ["./src/components/*"],
+      "@/hooks/*": ["./src/hooks/*"],
+      "@/types/*": ["./src/types/*"],
+      "@/constants/*": ["./src/constants/*"],
+      "@/utils/*": ["./src/utils/*"]
+    }
+  }
+}
+```
+
+#### Backend (tsconfig.json)
+
+```json
+{
+  "compilerOptions": {
+    "paths": {
+      "@shared": ["../shared/src"],
+      "@shared/*": ["../shared/src/*"],
+      "@/*": ["./src/*"],
+      "@/types/*": ["./src/types/*"],
+      "@/constants/*": ["./src/constants/*"],
+      "@/utils/*": ["./src/utils/*"],
+      "@/common/*": ["./src/common/*"]
+    }
+  }
+}
+```
+
+### Development Guidelines
+
+#### Adding New Features
+
+1. **Define types** in `shared/src/types/` if used by both frontend and backend
+2. **Add constants** in `shared/src/constants/` for API endpoints, error codes, etc.
+3. **Create DTOs** in backend that implement shared interfaces
+4. **Use shared utilities** instead of creating duplicates
+5. **Follow consistent import patterns** using path aliases
+
+#### Code Organization Rules
+
+- **Shared code**: Types, constants, enums, utilities used by both frontend and backend
+- **Frontend-specific**: UI components, React hooks, page types, UI constants
+- **Backend-specific**: NestJS modules, guards, decorators, database utilities
+- **No duplication**: Always check shared package before creating new utilities or constants
+
+#### Import Best Practices
+
+- Use **barrel exports** (`index.ts`) for clean imports
+- Import from **shared package** for cross-cutting concerns
+- Use **path aliases** consistently across the codebase
+- Group imports: external libraries → shared → local modules → types

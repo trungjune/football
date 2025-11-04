@@ -34,10 +34,16 @@ export class SessionsService {
 
     return this.prisma.trainingSession.create({
       data: {
-        ...sessionData,
+        title: sessionData.title,
+        description: sessionData.description,
+        location: sessionData.location,
+        type: sessionData.type as any,
+        maxParticipants: sessionData.maxParticipants,
         datetime: sessionDate,
         registrationDeadline: deadline,
-        teamId,
+        team: {
+          connect: { id: teamId },
+        },
       },
       include: {
         team: true,

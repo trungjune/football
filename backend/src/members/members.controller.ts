@@ -22,7 +22,7 @@ import {
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
-import { Role } from '../common/enums/role.enum';
+import { UserRole as Role } from '@shared/enums';
 import { AuthenticatedRequest } from '../types/express.types';
 
 @ApiTags('Members')

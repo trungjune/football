@@ -169,25 +169,25 @@
   - _Requirements: 6.1, 6.2_
 
 - [ ] 9. Testing và validation
-- [-] 9.1 Run type checking
+- [x] 9.1 Run type checking
   - Run TypeScript compiler cho cả frontend và backend
   - Fix any type errors introduced during refactor
   - Ensure shared types work properly trong cả environments
   - _Requirements: 6.1, 6.5_
 
-- [ ] 9.2 Run build tests
+- [x] 9.2 Run build tests
   - Test frontend build với Next.js
   - Test backend build với NestJS
   - Ensure no build errors sau refactor
   - _Requirements: 6.1, 6.5_
 
-- [ ] 9.3 Run existing test suites
+- [x] 9.3 Run existing test suites
   - Run frontend tests với Vitest
   - Run backend tests với Jest
   - Fix any test failures caused by import changes
   - _Requirements: 6.5_
 
-- [ ] 9.4 Manual testing critical flows
+- [x] 9.4 Manual testing critical flows
   - Test authentication flow end-to-end
   - Test member management functionality
   - Test session management functionality
@@ -195,19 +195,19 @@
   - _Requirements: 6.1_
 
 - [ ] 10. Documentation và cleanup
-- [ ] 10.1 Update import documentation
+- [x] 10.1 Update import documentation
   - Document new import patterns trong README
   - Update development guidelines với new structure
   - Create migration guide cho developers
   - _Requirements: 6.3_
 
-- [ ] 10.2 Bundle size analysis
+- [x] 10.2 Bundle size analysis
   - Analyze frontend bundle size sau refactor
   - Ensure no significant bundle size increase
   - Optimize imports nếu cần thiết
   - _Requirements: 6.2_
 
-- [ ] 10.3 Performance validation
+- [x] 10.3 Performance validation
   - Run performance tests để ensure no regression
   - Monitor build times cho cả frontend và backend
   - Validate startup times không bị impact

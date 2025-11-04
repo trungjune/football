@@ -4,7 +4,7 @@ import { Response } from 'express';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
-import { Role } from '../common/enums/role.enum';
+import { UserRole as Role } from '@shared/enums';
 import { CustomLoggingService } from './logging.service';
 
 @ApiTags('Logging')
