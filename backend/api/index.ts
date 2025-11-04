@@ -85,17 +85,27 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return;
     }
 
-    // Temporarily disable NestJS to test handler
+    // Route to specific handlers for auth endpoints
     const path = (req.query.path as string) || req.url || '/';
 
-    return res.status(200).json({
-      message: 'Backend API handler is working',
-      path: path,
-      method: req.method,
-      timestamp: new Date().toISOString(),
-      query: req.query,
-      note: 'NestJS app temporarily disabled for debugging',
-    });
+    // Handle auth/login specifically
+    if (path === 'auth/login' && req.method === 'POST') {
+      const loginHandler = await import('./auth/login');
+      return loginHandler.default(req, res);
+    }
+
+    // For other endpoints, create and use NestJS app
+    const nestApp = await createNestApp();
+
+    // Transform Vercel request to Express-like request
+    const expressReq = {
+      ...req,
+      url: `/${path}`,
+      path: `/${path}`,
+      originalUrl: `/${path}`,
+    };
+
+    return nestApp.getHttpAdapter().getInstance()(expressReq, res);
   } catch (error) {
     console.error('Handler error:', error);
 

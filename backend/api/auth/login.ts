@@ -59,25 +59,49 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     // Temporary mock authentication for deployment testing
-    if (email === 'admin@test.com' && password === 'admin') {
+    const mockUsers = [
+      {
+        email: 'admin@football.com',
+        password: 'admin123',
+        user: {
+          id: '1',
+          email: 'admin@football.com',
+          role: 'ADMIN',
+          member: null,
+        },
+      },
+      {
+        email: 'nguyen.huu.phuc.fcvuive@gmail.com',
+        password: 'admin123',
+        user: {
+          id: '2',
+          email: 'nguyen.huu.phuc.fcvuive@gmail.com',
+          role: 'MEMBER',
+          member: {
+            id: '1',
+            fullName: 'Nguyễn Hữu Phúc',
+            position: 'MIDFIELDER',
+          },
+        },
+      },
+    ];
+
+    const mockUser = mockUsers.find(u => u.email === email && u.password === password);
+
+    if (mockUser) {
       // Generate JWT
       const token = jwt.sign(
         {
-          sub: '1',
-          email: 'admin@test.com',
-          role: 'ADMIN',
+          sub: mockUser.user.id,
+          email: mockUser.user.email,
+          role: mockUser.user.role,
         },
         process.env.JWT_SECRET || 'fallback-secret',
         { expiresIn: '7d' },
       );
 
       res.status(200).json({
-        user: {
-          id: '1',
-          email: 'admin@test.com',
-          role: 'ADMIN',
-          member: null,
-        },
+        user: mockUser.user,
         access_token: token,
       });
       return;
