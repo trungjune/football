@@ -1,135 +1,60 @@
-import * as bcrypt from 'bcryptjs';
-import * as jwt from 'jsonwebtoken';
-
-interface VercelRequest {
-  method?: string;
-  body?: {
-    email?: string;
-    password?: string;
-  };
-  query?: { [key: string]: string | string[] };
-}
-
-interface VercelResponse {
-  status: (code: number) => VercelResponse;
-  json: (data: Record<string, unknown>) => void;
-  setHeader: (name: string, value: string) => void;
-  end: () => void;
-}
-
-// Initialize Prisma client lazily
-let prisma: unknown = null;
-
-async function getPrismaClient() {
-  if (!prisma) {
-    try {
-      const { PrismaClient } = await import('@prisma/client');
-      prisma = new PrismaClient();
-    } catch (error) {
-      console.error('Failed to initialize Prisma client:', error);
-      throw new Error('Database connection failed');
-    }
-  }
-  return prisma;
-}
+import type { VercelRequest, VercelResponse } from '@vercel/node';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  // Enable CORS
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
-
-  console.log('Login handler called:', {
-    method: req.method,
-    url: req.url,
-    body: req.body,
-    query: req.query,
-  });
-
-  if (req.method === 'OPTIONS') {
-    res.status(200).end();
-    return;
-  }
-
-  if (req.method !== 'POST') {
-    console.log('Method not allowed:', req.method);
-    res.status(405).json({ error: 'Method not allowed' });
-    return;
-  }
-
   try {
+    // Enable CORS
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+
+    if (req.method === 'OPTIONS') {
+      res.status(200).end();
+      return;
+    }
+
+    if (req.method !== 'POST') {
+      res.status(405).json({ error: 'Method not allowed' });
+      return;
+    }
+
     const { email, password } = req.body || {};
-    console.log('Login attempt:', { email, password: password ? '***' : 'missing' });
 
     if (!email || !password) {
-      console.log('Missing credentials');
       res.status(400).json({ error: 'Email and password are required' });
       return;
     }
 
-    // Temporary mock authentication for deployment testing
-    const mockUsers = [
-      {
-        email: 'admin@football.com',
-        password: 'admin123',
-        user: {
-          id: '1',
-          email: 'admin@football.com',
-          role: 'ADMIN',
-          member: null,
-        },
-      },
-      {
-        email: 'nguyen.huu.phuc.fcvuive@gmail.com',
-        password: 'admin123',
-        user: {
-          id: '2',
-          email: 'nguyen.huu.phuc.fcvuive@gmail.com',
-          role: 'MEMBER',
-          member: {
-            id: '1',
-            fullName: 'Nguyễn Hữu Phúc',
-            position: 'MIDFIELDER',
-          },
-        },
-      },
+    // Simple mock authentication
+    const validCredentials = [
+      { email: 'admin@football.com', password: 'admin123', role: 'ADMIN' },
+      { email: 'nguyen.huu.phuc.fcvuive@gmail.com', password: 'admin123', role: 'MEMBER' },
     ];
 
-    const mockUser = mockUsers.find(u => u.email === email && u.password === password);
-    console.log('Mock user found:', !!mockUser);
+    const user = validCredentials.find(u => u.email === email && u.password === password);
 
-    if (mockUser) {
-      console.log('Generating JWT for user:', mockUser.user.email);
-      // Generate JWT
-      const token = jwt.sign(
-        {
-          sub: mockUser.user.id,
-          email: mockUser.user.email,
-          role: mockUser.user.role,
+    if (user) {
+      // Simple token (in production, use proper JWT)
+      const token = Buffer.from(`${user.email}:${user.role}:${Date.now()}`).toString('base64');
+
+      res.status(200).json({
+        user: {
+          id: user.email === 'admin@football.com' ? '1' : '2',
+          email: user.email,
+          role: user.role,
+          member: user.role === 'MEMBER' ? { id: '1', fullName: 'Nguyễn Hữu Phúc' } : null,
         },
-        process.env.JWT_SECRET || 'fallback-secret',
-        { expiresIn: '7d' },
-      );
-
-      const response = {
-        user: mockUser.user,
         access_token: token,
-      };
-      console.log('Login successful, sending response:', response);
-      res.status(200).json(response);
+      });
       return;
     }
 
-    // For now, return invalid credentials for other attempts
-    console.log('Invalid credentials for:', email);
     res.status(401).json({ error: 'Invalid credentials' });
-  } catch (error: unknown) {
+  } catch (error) {
     console.error('Login error:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     res.status(500).json({
       error: 'Internal server error',
-      message: errorMessage,
+      message: error instanceof Error ? error.message : 'Unknown error',
     });
   }
 }
