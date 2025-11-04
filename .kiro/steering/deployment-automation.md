@@ -22,25 +22,26 @@ git add .
 git commit -m "feat: mô tả tính năng bằng tiếng Việt"
 git push origin main
 
-# HOẶC deploy trực tiếp
-vercel --prod
+# ❌ KHÔNG CẦN chạy vercel --prod sau khi push!
+# Vercel sẽ tự động deploy
 ```
 
 ### 2. Vercel Auto-Deploy
 
-- Vercel tự động build và deploy khi có commit mới push lên main branch
-- Không cần manual deploy nếu đã setup auto-deploy
-- Kiểm tra deployment status tại Vercel dashboard
+- **BẮT BUỘC**: Vercel tự động build và deploy khi có commit mới push lên main branch
+- **KHÔNG BAO GIỜ** chạy `vercel --prod` sau khi đã push code
+- Chỉ kiểm tra deployment status tại Vercel dashboard
+- Auto-deploy đã được setup và hoạt động tự động
 
-### 3. Manual Deploy (khi cần thiết)
+### 3. Manual Deploy (CHỈ khi cần thiết đặc biệt)
+
+⚠️ **CHÚ Ý**: Manual deploy chỉ dùng trong trường hợp đặc biệt, KHÔNG phải quy trình thường xuyên
 
 ```bash
-# Deploy toàn bộ project
-npm run deploy
+# CHỈ khi cần deploy branch khác hoặc test
+vercel --prod
 
-# Hoặc deploy riêng lẻ
-cd backend && vercel --prod
-cd frontend && vercel --prod
+# KHÔNG bao giờ chạy sau khi đã push lên main
 ```
 
 ## Cấu hình Deploy

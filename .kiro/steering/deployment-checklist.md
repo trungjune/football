@@ -32,15 +32,17 @@ npm run build
 git add .
 git commit -m "message"
 git push origin main
-# VERCEL TỰ ĐỘNG BUILD VÀ DEPLOY - KHÔNG CẦN CHẠY vercel --prod
+# ✅ VERCEL TỰ ĐỘNG BUILD VÀ DEPLOY
+# ❌ KHÔNG BAO GIỜ CHẠY vercel --prod SAU KHI PUSH!
 ```
 
 ## ❌ NHỮNG GÌ KHÔNG ĐƯỢC LÀM
 
 1. **KHÔNG** commit khi còn lỗi build
 2. **KHÔNG** push code lỗi lên repository
-3. **KHÔNG** chạy `vercel --prod` sau khi push (Vercel auto-deploy)
+3. **KHÔNG BAO GIỜ** chạy `vercel --prod` sau khi push (Vercel auto-deploy)
 4. **KHÔNG** vội vàng bỏ qua bước kiểm tra
+5. **KHÔNG** quên rằng Vercel tự động deploy sau mỗi push
 
 ## ✅ LUÔN NHỚ
 

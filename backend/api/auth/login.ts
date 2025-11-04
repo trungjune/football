@@ -40,20 +40,30 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   res.setHeader('Access-Control-Allow-Credentials', 'true');
 
+  console.log('Login handler called:', {
+    method: req.method,
+    url: req.url,
+    body: req.body,
+    query: req.query,
+  });
+
   if (req.method === 'OPTIONS') {
     res.status(200).end();
     return;
   }
 
   if (req.method !== 'POST') {
+    console.log('Method not allowed:', req.method);
     res.status(405).json({ error: 'Method not allowed' });
     return;
   }
 
   try {
     const { email, password } = req.body || {};
+    console.log('Login attempt:', { email, password: password ? '***' : 'missing' });
 
     if (!email || !password) {
+      console.log('Missing credentials');
       res.status(400).json({ error: 'Email and password are required' });
       return;
     }
@@ -87,8 +97,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     ];
 
     const mockUser = mockUsers.find(u => u.email === email && u.password === password);
+    console.log('Mock user found:', !!mockUser);
 
     if (mockUser) {
+      console.log('Generating JWT for user:', mockUser.user.email);
       // Generate JWT
       const token = jwt.sign(
         {
@@ -100,14 +112,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         { expiresIn: '7d' },
       );
 
-      res.status(200).json({
+      const response = {
         user: mockUser.user,
         access_token: token,
-      });
+      };
+      console.log('Login successful, sending response:', response);
+      res.status(200).json(response);
       return;
     }
 
     // For now, return invalid credentials for other attempts
+    console.log('Invalid credentials for:', email);
     res.status(401).json({ error: 'Invalid credentials' });
   } catch (error: unknown) {
     console.error('Login error:', error);
