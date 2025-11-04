@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+// Disabled NextAuth for custom auth
+// import { getServerSession } from 'next-auth';
+// import { authOptions } from '@/lib/auth';
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    // Since we disabled NextAuth, skip session check for now
+    // const session = null; // await getServerSession(authOptions);
     const { type, data } = await request.json();
 
     // Add server-side enrichment
@@ -13,7 +15,7 @@ export async function POST(request: NextRequest) {
       serverTimestamp: new Date().toISOString(),
       ip: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown',
       userAgent: request.headers.get('user-agent') || 'unknown',
-      userId: session?.user?.id || data.userId,
+      userId: data.userId || 'anonymous',
       environment: process.env.NODE_ENV,
     };
 

@@ -33,7 +33,7 @@ export function middleware(request: NextRequest) {
     pathname,
     hasToken: !!token,
     tokenValue: token ? 'present' : 'missing',
-    allCookies: Object.fromEntries(request.cookies.entries()),
+    cookieCount: request.cookies.size,
   });
 
   // Skip middleware cho NextAuth routes
