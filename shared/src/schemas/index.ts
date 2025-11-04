@@ -1,12 +1,21 @@
 import { z } from 'zod';
-import { Role, Position, MemberType, MemberStatus, SessionType, FeeType, PaymentMethod, PreferredFoot } from '../types';
+import {
+  UserRole,
+  Position,
+  MemberType,
+  MemberStatus,
+  SessionType,
+  FeeType,
+  PaymentMethod,
+  PreferredFoot,
+} from '../types/entities';
 
 // User schemas
 export const CreateUserSchema = z.object({
   email: z.string().email('Email không hợp lệ'),
   phone: z.string().optional(),
   password: z.string().min(6, 'Mật khẩu phải có ít nhất 6 ký tự'),
-  role: z.nativeEnum(Role).default(Role.MEMBER),
+  role: z.nativeEnum(UserRole).default(UserRole.MEMBER),
 });
 
 export const UpdateUserSchema = CreateUserSchema.partial();
@@ -20,7 +29,7 @@ export const CreateMemberSchema = z.object({
   height: z.number().positive().optional(),
   weight: z.number().positive().optional(),
   preferredFoot: z.nativeEnum(PreferredFoot).optional(),
-  memberType: z.nativeEnum(MemberType).default(MemberType.OFFICIAL),
+  memberType: z.nativeEnum(MemberType).default(MemberType.REGULAR),
   status: z.nativeEnum(MemberStatus).default(MemberStatus.ACTIVE),
 });
 
@@ -67,19 +76,23 @@ export const PaginationSchema = z.object({
 });
 
 // Search schemas
-export const MemberSearchSchema = z.object({
-  search: z.string().optional(),
-  position: z.nativeEnum(Position).optional(),
-  status: z.nativeEnum(MemberStatus).optional(),
-  memberType: z.nativeEnum(MemberType).optional(),
-}).merge(PaginationSchema);
+export const MemberSearchSchema = z
+  .object({
+    search: z.string().optional(),
+    position: z.nativeEnum(Position).optional(),
+    status: z.nativeEnum(MemberStatus).optional(),
+    memberType: z.nativeEnum(MemberType).optional(),
+  })
+  .merge(PaginationSchema);
 
-export const SessionSearchSchema = z.object({
-  search: z.string().optional(),
-  type: z.nativeEnum(SessionType).optional(),
-  dateFrom: z.string().datetime().optional(),
-  dateTo: z.string().datetime().optional(),
-}).merge(PaginationSchema);
+export const SessionSearchSchema = z
+  .object({
+    search: z.string().optional(),
+    type: z.nativeEnum(SessionType).optional(),
+    dateFrom: z.string().datetime().optional(),
+    dateTo: z.string().datetime().optional(),
+  })
+  .merge(PaginationSchema);
 
 export type CreateUserDto = z.infer<typeof CreateUserSchema>;
 export type UpdateUserDto = z.infer<typeof UpdateUserSchema>;

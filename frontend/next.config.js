@@ -1,5 +1,14 @@
+const path = require('path');
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  webpack: config => {
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      '@shared': path.resolve(__dirname, '../shared/src'),
+    };
+    return config;
+  },
   experimental: {
     // Enable latest Next.js 15 features
     optimizePackageImports: ['lucide-react', '@radix-ui/react-icons'],

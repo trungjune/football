@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import * as puppeteer from 'puppeteer';
 import * as ExcelJS from 'exceljs';
+import { formatCurrency } from '@shared/utils/format';
 
 @Injectable()
 export class PdfExportService {
@@ -79,16 +80,13 @@ export class PdfExportService {
     summarySheet.addRow(['TỔNG QUAN']);
     summarySheet.addRow([
       'Tổng thu dự kiến:',
-      this.formatCurrency(financialData.summary.totalExpectedRevenue),
+      formatCurrency(financialData.summary.totalExpectedRevenue),
     ]);
     summarySheet.addRow([
       'Tổng thu thực tế:',
-      this.formatCurrency(financialData.summary.totalActualRevenue),
+      formatCurrency(financialData.summary.totalActualRevenue),
     ]);
-    summarySheet.addRow([
-      'Tổng công nợ:',
-      this.formatCurrency(financialData.summary.totalOutstanding),
-    ]);
+    summarySheet.addRow(['Tổng công nợ:', formatCurrency(financialData.summary.totalOutstanding)]);
     summarySheet.addRow(['Tỷ lệ thu:', `${financialData.summary.collectionRate.toFixed(1)}%`]);
     summarySheet.addRow([]);
 
@@ -434,13 +432,6 @@ export class PdfExportService {
     worksheet.columns.forEach(column => {
       column.width = 20;
     });
-  }
-
-  private formatCurrency(amount: number): string {
-    return new Intl.NumberFormat('vi-VN', {
-      style: 'currency',
-      currency: 'VND',
-    }).format(amount);
   }
 
   private translateFeeType(type: string): string {

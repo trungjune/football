@@ -19,7 +19,14 @@
     "noFallthroughCasesInSwitch": false,
     "paths": {
       "@/*": ["./src/*"],
-      "@/shared/*": ["../shared/*"]
+      "@/types/*": ["./src/types/*"],
+      "@/constants/*": ["./src/constants/*"],
+      "@/utils/*": ["./src/utils/*"],
+      "@/common/*": ["./src/common/*"],
+      "@/modules/*": ["./src/modules/*"],
+      "@/config/*": ["./src/config/*"],
+      "@shared": ["../shared/src"],
+      "@shared/*": ["../shared/src/*"]
     }
   },
   "include": ["src/**/*", "prisma/seed.ts"],

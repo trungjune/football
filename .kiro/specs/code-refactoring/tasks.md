@@ -1,57 +1,57 @@
 # Implementation Plan - Refactor Toàn bộ Source Code
 
-- [-] 1. Phân tích và chuẩn bị refactor
+- [x] 1. Phân tích và chuẩn bị refactor
   - Scan toàn bộ codebase để identify duplicate code, unused imports và orphaned files
   - Tạo mapping dependencies giữa các modules để đánh giá impact
   - Backup current codebase và setup branch cho refactor
   - _Requirements: 5.1, 5.2, 5.3_
 
 - [ ] 2. Setup shared infrastructure
-- [ ] 2.1 Tạo shared package structure
+- [x] 2.1 Tạo shared package structure
   - Tạo thư mục `/shared/src` với cấu trúc types, constants, enums, schemas, utils
   - Setup package.json cho shared package với proper dependencies
   - Configure TypeScript cho shared package
   - _Requirements: 1.1, 1.2, 4.1_
 
-- [ ] 2.2 Configure build tools và path aliases
+- [x] 2.2 Configure build tools và path aliases
   - Update tsconfig.json cho cả frontend và backend để support shared package
   - Configure Next.js webpack để resolve @shared alias
   - Configure NestJS để support shared imports
   - _Requirements: 2.1, 2.2, 2.3_
 
-- [ ] 2.3 Setup barrel exports cho shared package
+- [x] 2.3 Setup barrel exports cho shared package
   - Tạo index.ts files cho từng module trong shared
   - Setup main barrel export cho toàn bộ shared package
   - Test import paths từ frontend và backend
   - _Requirements: 6.2_
 
 - [ ] 3. Migrate shared types và constants
-- [ ] 3.1 Move entity types vào shared package
+- [x] 3.1 Move entity types vào shared package
   - Migrate User, Member, Session, Fee entity types từ backend/frontend vào shared/src/types/entities
   - Update imports trong cả frontend và backend để sử dụng shared types
   - Ensure type consistency giữa Prisma models và shared types
   - _Requirements: 4.1, 4.2_
 
-- [ ] 3.2 Consolidate API types vào shared
+- [x] 3.2 Consolidate API types vào shared
   - Move tất cả API request/response types vào shared/src/types/api
   - Remove duplicate API types từ frontend và backend
   - Update tất cả API calls để sử dụng shared types
   - _Requirements: 4.1, 4.2, 5.4_
 
-- [ ] 3.3 Migrate constants vào shared package
+- [x] 3.3 Migrate constants vào shared package
   - Move API endpoints, HTTP status codes, error codes vào shared/src/constants
   - Remove duplicate constants từ frontend middleware, api-client và backend controllers
   - Update tất cả references để sử dụng shared constants
   - _Requirements: 5.3, 5.4_
 
-- [ ] 3.4 Consolidate enums và validation schemas
+- [x] 3.4 Consolidate enums và validation schemas
   - Move UserRole, Position, SessionType enums vào shared/src/enums
   - Migrate Zod schemas vào shared/src/schemas
   - Remove duplicate enums và schemas từ frontend/backend
   - _Requirements: 4.4, 4.5_
 
 - [ ] 4. Consolidate utility functions
-- [ ] 4.1 Migrate shared utilities
+- [x] 4.1 Migrate shared utilities
   - Move formatDate, formatCurrency, validateEmail, validatePhone từ shared/src/utils/index.ts
   - Remove duplicate utility functions từ frontend/lib/utils.ts
   - Ensure utilities work properly trong cả browser và Node.js environments

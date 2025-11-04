@@ -1,4 +1,5 @@
-// Export all shared types and utilities
+// Main barrel export for shared package
 export * from './types';
-export * from './schemas';
+export * from './constants';
+export * from './enums';
 export * from './utils';

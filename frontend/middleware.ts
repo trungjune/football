@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { API_ENDPOINTS } from '@shared/constants/api';
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -16,7 +17,11 @@ export function middleware(request: NextRequest) {
   ];
 
   // Các route API công khai
-  const publicApiRoutes = ['/api/auth/login', '/api/auth/register', '/api/health'];
+  const publicApiRoutes = [
+    API_ENDPOINTS.AUTH.LOGIN,
+    API_ENDPOINTS.AUTH.REGISTER,
+    API_ENDPOINTS.HEALTH,
+  ];
 
   // Kiểm tra nếu là route công khai
   if (

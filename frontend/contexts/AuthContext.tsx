@@ -2,12 +2,7 @@
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
-
-interface User {
-  id: string;
-  email: string;
-  role: string;
-}
+import { User } from '@shared/types/entities/user';
 
 interface AuthContextType {
   user: User | null;
