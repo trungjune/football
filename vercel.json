@@ -24,6 +24,10 @@
   ],
   "routes": [
     {
+      "src": "/api/auth/login",
+      "dest": "/backend/api/auth/login.ts"
+    },
+    {
       "src": "/api/test",
       "dest": "/backend/api/test.ts"
     },
