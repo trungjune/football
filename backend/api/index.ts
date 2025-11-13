@@ -46,6 +46,8 @@ async function createNestApp() {
         }),
       );
 
+      // Don't set global prefix in serverless - handle routing manually
+
       // Swagger documentation (development only)
       if (process.env.NODE_ENV !== 'production') {
         const config = new DocumentBuilder()
@@ -87,9 +89,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // Route to specific handlers for auth endpoints
     const path = (req.query.path as string) || req.url || '/';
+    
+    console.log('API Handler - Path:', path, 'Method:', req.method, 'URL:', req.url);
 
-    // Handle auth/login specifically
-    if (path === 'auth/login' && req.method === 'POST') {
+    // Handle auth/login specifically - check multiple path formats
+    if ((path === 'auth/login' || path === '/auth/login' || req.url?.includes('/auth/login')) && req.method === 'POST') {
+      console.log('Routing to login handler');
       const loginHandler = await import('./auth/login');
       return loginHandler.default(req, res);
     }
@@ -105,6 +110,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       originalUrl: `/${path}`,
     };
 
+    console.log('Routing to NestJS app with path:', `/${path}`);
     return nestApp.getHttpAdapter().getInstance()(expressReq, res);
   } catch (error) {
     console.error('Handler error:', error);

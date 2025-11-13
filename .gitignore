@@ -66,14 +66,14 @@ jspm_packages/
 .parcel-cache
 
 # Next.js build output
-.next
+next/
 
 # Nuxt.js build / generate output
-.nuxt
+.nuxt/
 
 # Gatsby files
 .cache/
-public
+# public - commented out as we need public files for frontend
 
 # Storybook build outputs
 .out
