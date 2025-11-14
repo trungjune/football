@@ -16,6 +16,7 @@ export function middleware(request: NextRequest) {
     '/auth/error',
     '/offline',
     '/test-dashboard',
+    '/debug-auth',
   ];
 
   // Các route API công khai
