@@ -84,9 +84,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = (newToken: string, newUser: User) => {
     if (!newToken || !newUser || !newUser.id || !newUser.email) {
+      console.error('AuthContext: Invalid login data', { token: !!newToken, user: !!newUser });
       return;
     }
 
+    console.log('[AuthContext] Logging in user:', newUser.email);
     setToken(newToken);
     setUser(newUser);
 
@@ -97,6 +99,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const maxAge = TOKEN_CONFIG.EXPIRY_DAYS * TOKEN_CONFIG.SECONDS_PER_DAY;
       const cookieValue = `token=${newToken}; path=/; max-age=${maxAge}; SameSite=Lax; Secure=${window.location.protocol === 'https:'}`;
       document.cookie = cookieValue;
+      console.log('[AuthContext] Token saved to cookie:', cookieValue.substring(0, 50) + '...');
     } catch (error) {
       console.error('AuthContext: Error saving auth data:', error);
     }

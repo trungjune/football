@@ -39,13 +39,17 @@ export function middleware(request: NextRequest) {
   // Kiểm tra token từ cookie (set bởi AuthContext)
   const token = request.cookies.get('token')?.value;
 
+  console.log('[Middleware] Path:', pathname, 'Token:', token ? 'YES' : 'NO');
+
   // Nếu không có token và đang truy cập route bảo vệ
   if (!token) {
+    console.log('[Middleware] No token, redirecting to login');
     const loginUrl = new URL(ROUTES.LOGIN, request.url);
     loginUrl.searchParams.set('redirect', pathname);
     return NextResponse.redirect(loginUrl);
   }
 
+  console.log('[Middleware] Token found, allowing access');
   // Cho phép tiếp tục
   return NextResponse.next();
 }
