@@ -46,9 +46,13 @@ export function middleware(request: NextRequest) {
   // Nếu không có token và đang truy cập route bảo vệ
   if (!token && !pathname.startsWith('/api/')) {
     console.log('Redirecting to login from:', pathname);
-    const loginUrl = new URL('/login', request.url);
-    loginUrl.searchParams.set('redirect', pathname);
-    return NextResponse.redirect(loginUrl);
+    console.log('Token value:', token);
+    console.log('All cookies:', request.cookies.getAll());
+    
+    // Tạm thời comment out redirect để debug
+    // const loginUrl = new URL('/login', request.url);
+    // loginUrl.searchParams.set('redirect', pathname);
+    // return NextResponse.redirect(loginUrl);
   }
 
   // Cho phép tiếp tục
