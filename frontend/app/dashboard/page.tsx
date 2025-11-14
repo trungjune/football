@@ -5,16 +5,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Users, Calendar, DollarSign, TrendingUp } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useQuery } from '@tanstack/react-query';
+import { apiClient } from '@/lib/api-client';
 
 function useDashboardStats() {
   return useQuery({
     queryKey: ['dashboard-stats'],
     queryFn: async () => {
-      const response = await fetch('/api/dashboard/stats');
-      if (!response.ok) {
-        throw new Error('Failed to fetch dashboard stats');
-      }
-      return response.json();
+      const response = await apiClient.get('/dashboard/stats');
+      return response.data;
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
   });

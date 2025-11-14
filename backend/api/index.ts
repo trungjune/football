@@ -99,6 +99,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return loginHandler.default(req, res);
     }
 
+    // Handle dashboard/stats specifically
+    if ((path === 'dashboard/stats' || path === '/dashboard/stats' || req.url?.includes('/dashboard/stats')) && req.method === 'GET') {
+      console.log('Routing to dashboard stats handler');
+      const statsHandler = await import('./dashboard/stats');
+      return statsHandler.default(req, res);
+    }
+
     // For other endpoints, create and use NestJS app
     const nestApp = await createNestApp();
 
