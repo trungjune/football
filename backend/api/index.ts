@@ -88,9 +88,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const cleanPath = path.replace(/^\/+|\/+$/g, '');
 
     // Route everything to NestJS app - no fallbacks, force real database
-    const nestApp = await createNestApp();
-    const expressReq = { ...req, url: `/${cleanPath}`, path: `/${cleanPath}`, originalUrl: `/${cleanPath}` };
-    return nestApp.getHttpAdapter().getInstance()(expressReq, res);
+    try {
+      const nestApp = await createNestApp();
+      const expressReq = { ...req, url: `/${cleanPath}`, path: `/${cleanPath}`, originalUrl: `/${cleanPath}` };
+      return nestApp.getHttpAdapter().getInstance()(expressReq, res);
+    } catch (nestError) {
+      console.error('NestJS error for path:', cleanPath, nestError);
+      throw nestError;
+    }
   } catch (error) {
     console.error('Handler error:', error);
     return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
