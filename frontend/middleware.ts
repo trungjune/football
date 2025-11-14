@@ -31,16 +31,16 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Kiểm tra token từ cookie
-  const token = request.cookies.get('token')?.value;
-
-  // Skip middleware cho NextAuth routes
-  if (pathname.startsWith('/api/auth/')) {
+  // Skip middleware cho API routes
+  if (pathname.startsWith('/api/')) {
     return NextResponse.next();
   }
 
+  // Kiểm tra token từ cookie (set bởi AuthContext)
+  const token = request.cookies.get('token')?.value;
+
   // Nếu không có token và đang truy cập route bảo vệ
-  if (!token && !pathname.startsWith('/api/')) {
+  if (!token) {
     const loginUrl = new URL(ROUTES.LOGIN, request.url);
     loginUrl.searchParams.set('redirect', pathname);
     return NextResponse.redirect(loginUrl);

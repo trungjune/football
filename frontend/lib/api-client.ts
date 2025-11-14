@@ -5,10 +5,7 @@ import { API_ENDPOINTS } from '@shared/constants/api';
 
 // Create axios instance
 export const apiClient = axios.create({
-  baseURL:
-    process.env.NODE_ENV === 'production'
-      ? 'https://football-team-manager-pi.vercel.app/api'
-      : '/api',
+  baseURL: '/api', // Always use relative path - Vercel will route to backend via vercel.json
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
