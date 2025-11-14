@@ -87,13 +87,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const path = (req.query.path as string) || req.url || '/';
     const cleanPath = path.replace(/^\/+|\/+$/g, '');
 
-    // Handle auth/login with mock handler (temporary until JWT is fixed)
-    if (cleanPath === API_PATHS.AUTH_LOGIN && req.method === HTTP_METHODS.POST) {
-      const loginHandler = await import('./auth/login');
-      return loginHandler.default(req, res);
-    }
-
-    // Route everything else to NestJS app for real database access
+    // Route everything to NestJS app for real database access
     const nestApp = await createNestApp();
     const expressReq = { ...req, url: `/${cleanPath}`, path: `/${cleanPath}`, originalUrl: `/${cleanPath}` };
     return nestApp.getHttpAdapter().getInstance()(expressReq, res);
