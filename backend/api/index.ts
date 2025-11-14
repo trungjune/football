@@ -106,6 +106,27 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return statsHandler.default(req, res);
     }
 
+    // Handle members API
+    if ((path === 'members' || path === '/members' || req.url?.includes('/members')) && (req.method === 'GET' || req.method === 'POST')) {
+      console.log('Routing to members handler');
+      const membersHandler = await import('./members');
+      return membersHandler.default(req, res);
+    }
+
+    // Handle sessions API
+    if ((path === 'sessions' || path === '/sessions' || req.url?.includes('/sessions')) && (req.method === 'GET' || req.method === 'POST')) {
+      console.log('Routing to sessions handler');
+      const sessionsHandler = await import('./sessions');
+      return sessionsHandler.default(req, res);
+    }
+
+    // Handle finance/fees API
+    if ((path === 'finance/fees' || path === '/finance/fees' || req.url?.includes('/finance/fees')) && (req.method === 'GET' || req.method === 'POST')) {
+      console.log('Routing to finance fees handler');
+      const feesHandler = await import('./finance/fees');
+      return feesHandler.default(req, res);
+    }
+
     // For other endpoints, create and use NestJS app
     const nestApp = await createNestApp();
 

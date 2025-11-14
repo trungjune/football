@@ -4,8 +4,6 @@ import { API_ENDPOINTS } from '@shared/constants/api';
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  
-  console.log('Middleware running for:', pathname);
 
   // Các route công khai không cần xác thực
   const publicRoutes = [
@@ -36,7 +34,6 @@ export function middleware(request: NextRequest) {
 
   // Kiểm tra token từ cookie
   const token = request.cookies.get('token')?.value;
-  console.log('Token found:', !!token);
 
   // Skip middleware cho NextAuth routes
   if (pathname.startsWith('/api/auth/')) {
@@ -45,14 +42,9 @@ export function middleware(request: NextRequest) {
 
   // Nếu không có token và đang truy cập route bảo vệ
   if (!token && !pathname.startsWith('/api/')) {
-    console.log('Redirecting to login from:', pathname);
-    console.log('Token value:', token);
-    console.log('All cookies:', request.cookies.getAll());
-    
-    // Tạm thời comment out redirect để debug
-    // const loginUrl = new URL('/login', request.url);
-    // loginUrl.searchParams.set('redirect', pathname);
-    // return NextResponse.redirect(loginUrl);
+    const loginUrl = new URL('/login', request.url);
+    loginUrl.searchParams.set('redirect', pathname);
+    return NextResponse.redirect(loginUrl);
   }
 
   // Cho phép tiếp tục
