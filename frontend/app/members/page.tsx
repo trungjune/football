@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { AppLayout } from '@/components/layout/app-layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -53,6 +54,7 @@ const statusNames = {
 };
 
 export default function MembersPage() {
+  const router = useRouter();
   const [members, setMembers] = useState<Member[]>([]);
   const [filteredMembers, setFilteredMembers] = useState<Member[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -61,6 +63,15 @@ export default function MembersPage() {
   const [statusFilter, setStatusFilter] = useState('all');
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [selectedMember, setSelectedMember] = useState<Member | null>(null);
+
+  // Check authentication
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      router.push('/login?redirect=/members');
+      return;
+    }
+  }, [router]);
 
   const loadMembers = async () => {
     try {
