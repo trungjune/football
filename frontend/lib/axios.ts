@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { ROUTES } from '@shared/constants/auth';
 import { getSession } from 'next-auth/react';
 
 const api = axios.create({
@@ -26,7 +27,7 @@ api.interceptors.response.use(
   error => {
     if (error.response?.status === 401) {
       // Handle unauthorized access
-      window.location.href = '/login';
+      window.location.href = ROUTES.LOGIN;
     }
     return Promise.reject(error);
   }

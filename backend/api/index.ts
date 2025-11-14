@@ -5,10 +5,11 @@ import helmet from 'helmet';
 import compression from 'compression';
 import { AppModule } from '../src/app.module';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { HTTP_STATUS, HTTP_METHODS, API_PATHS } from '../../shared/src/constants/auth';
 
 let app: any;
 
-async function createNestApp() {
+export async function createNestApp() {
   if (!app) {
     try {
       app = await NestFactory.create(AppModule, {
@@ -72,78 +73,33 @@ async function createNestApp() {
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
-    // Add CORS headers manually for all requests
+    // CORS headers
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
-    res.setHeader(
-      'Access-Control-Allow-Headers',
-      'Content-Type, Authorization, Accept, Origin, X-Requested-With',
-    );
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, Accept, Origin, X-Requested-With');
     res.setHeader('Access-Control-Allow-Credentials', 'true');
 
-    // Handle preflight requests
-    if (req.method === 'OPTIONS') {
-      res.status(200).end();
+    if (req.method === HTTP_METHODS.OPTIONS) {
+      res.status(HTTP_STATUS.OK).end();
       return;
     }
 
-    // Route to specific handlers for auth endpoints
     const path = (req.query.path as string) || req.url || '/';
-    
-    console.log('API Handler - Path:', path, 'Method:', req.method, 'URL:', req.url);
+    const cleanPath = path.replace(/^\/+|\/+$/g, '');
 
-    // Handle auth/login specifically - check multiple path formats
-    if ((path === 'auth/login' || path === '/auth/login' || req.url?.includes('/auth/login')) && req.method === 'POST') {
-      console.log('Routing to login handler');
+    // Handle auth/login with mock handler (temporary until JWT is fixed)
+    if (cleanPath === API_PATHS.AUTH_LOGIN && req.method === HTTP_METHODS.POST) {
       const loginHandler = await import('./auth/login');
       return loginHandler.default(req, res);
     }
 
-    // Handle dashboard/stats specifically
-    if ((path === 'dashboard/stats' || path === '/dashboard/stats' || req.url?.includes('/dashboard/stats')) && req.method === 'GET') {
-      console.log('Routing to dashboard stats handler');
-      const statsHandler = await import('./dashboard/stats');
-      return statsHandler.default(req, res);
-    }
-
-    // Handle members API
-    if ((path === 'members' || path === '/members' || req.url?.includes('/members')) && (req.method === 'GET' || req.method === 'POST')) {
-      console.log('Routing to members handler');
-      const membersHandler = await import('./members');
-      return membersHandler.default(req, res);
-    }
-
-    // Handle sessions API
-    if ((path === 'sessions' || path === '/sessions' || req.url?.includes('/sessions')) && (req.method === 'GET' || req.method === 'POST')) {
-      console.log('Routing to sessions handler');
-      const sessionsHandler = await import('./sessions');
-      return sessionsHandler.default(req, res);
-    }
-
-    // Handle finance/fees API
-    if ((path === 'finance/fees' || path === '/finance/fees' || req.url?.includes('/finance/fees')) && (req.method === 'GET' || req.method === 'POST')) {
-      console.log('Routing to finance fees handler');
-      const feesHandler = await import('./finance/fees');
-      return feesHandler.default(req, res);
-    }
-
-    // For other endpoints, create and use NestJS app
+    // Route everything else to NestJS app for real database access
     const nestApp = await createNestApp();
-
-    // Transform Vercel request to Express-like request
-    const expressReq = {
-      ...req,
-      url: `/${path}`,
-      path: `/${path}`,
-      originalUrl: `/${path}`,
-    };
-
-    console.log('Routing to NestJS app with path:', `/${path}`);
+    const expressReq = { ...req, url: `/${cleanPath}`, path: `/${cleanPath}`, originalUrl: `/${cleanPath}` };
     return nestApp.getHttpAdapter().getInstance()(expressReq, res);
   } catch (error) {
     console.error('Handler error:', error);
-
-    return res.status(500).json({
+    return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
       error: 'Internal Server Error',
       message: process.env.NODE_ENV === 'development' ? error.message : 'Something went wrong',
       timestamp: new Date().toISOString(),

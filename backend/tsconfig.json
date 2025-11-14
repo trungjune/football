@@ -24,7 +24,8 @@
       "@/utils/*": ["./src/utils/*"],
       "@/common/*": ["./src/common/*"],
       "@/modules/*": ["./src/modules/*"],
-      "@/config/*": ["./src/config/*"]
+      "@/config/*": ["./src/config/*"],
+      "@shared/*": ["../shared/src/*"]
     }
   },
   "include": ["src/**/*", "prisma/seed.ts"],

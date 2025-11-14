@@ -1,7 +1,8 @@
 'use client';
 
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
+import { TOKEN_CONFIG, ROUTES } from '@shared/constants/auth';
 import { User } from '@shared/types/entities/user';
 
 interface AuthContextType {
@@ -29,8 +30,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (storedToken && storedUser && storedUser !== 'undefined' && storedUser !== 'null') {
         try {
           const parsedUser = JSON.parse(storedUser);
-
-          // Kiểm tra xem parsedUser có hợp lệ không
           if (parsedUser && typeof parsedUser === 'object' && parsedUser.id && parsedUser.email) {
             setToken(storedToken);
             setUser(parsedUser);
@@ -39,8 +38,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             localStorage.removeItem('user');
           }
         } catch (error) {
-          console.error('AuthContext: Error parsing user data from localStorage:', error);
-          // Xóa dữ liệu không hợp lệ
+          console.error('AuthContext: Error parsing user data:', error);
           localStorage.removeItem('token');
           localStorage.removeItem('user');
         }
@@ -68,7 +66,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if ((user || token) && (!storedToken || !storedUser || storedUser === 'undefined')) {
         setToken(null);
         setUser(null);
-        router.push('/login?message=Dữ liệu đăng nhập đã bị xóa');
+        router.push(`${ROUTES.LOGIN}?message=Dữ liệu đăng nhập đã bị xóa`);
       }
     };
 
@@ -85,69 +83,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [user, token, router]);
 
   const login = (newToken: string, newUser: User) => {
-    console.log('AuthContext: Login called with:', {
-      token: newToken ? 'present' : 'missing',
-      user: newUser,
-      userType: typeof newUser,
-      hasId: newUser?.id ? 'yes' : 'no',
-      hasEmail: newUser?.email ? 'yes' : 'no',
-    });
-
-    // Kiểm tra dữ liệu đầu vào
     if (!newToken || !newUser || !newUser.id || !newUser.email) {
-      console.error('AuthContext: Invalid login data provided:', {
-        token: !!newToken,
-        user: !!newUser,
-        userId: newUser?.id,
-        userEmail: newUser?.email,
-      });
       return;
     }
 
-    // Xóa dữ liệu cũ trước
-    try {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      console.log('AuthContext: Cleared old localStorage data');
-    } catch (error) {
-      console.error('AuthContext: Error clearing localStorage:', error);
-    }
-
-    // Cập nhật state trước
     setToken(newToken);
     setUser(newUser);
-    console.log('AuthContext: Updated state with new auth data');
 
-    // Lưu dữ liệu mới vào localStorage
     try {
       localStorage.setItem('token', newToken);
-      const userString = JSON.stringify(newUser);
-      localStorage.setItem('user', userString);
-
-      // Set cookie for middleware (more explicit)
-      const cookieValue = `token=${newToken}; path=/; max-age=604800; SameSite=Lax; Secure=${window.location.protocol === 'https:'}`;
+      localStorage.setItem('user', JSON.stringify(newUser));
+      
+      const maxAge = TOKEN_CONFIG.EXPIRY_DAYS * TOKEN_CONFIG.SECONDS_PER_DAY;
+      const cookieValue = `token=${newToken}; path=/; max-age=${maxAge}; SameSite=Lax; Secure=${window.location.protocol === 'https:'}`;
       document.cookie = cookieValue;
-      console.log('AuthContext: Set cookie:', cookieValue);
-
-      // Verify data was saved correctly
-      const savedToken = localStorage.getItem('token');
-      const savedUser = localStorage.getItem('user');
-
-      console.log('AuthContext: Data saved to localStorage:', {
-        tokenSaved: savedToken === newToken,
-        userSaved: !!savedUser,
-        userValue: savedUser,
-        canParse: (() => {
-          try {
-            const parsed = JSON.parse(savedUser || '');
-            return !!parsed.id;
-          } catch {
-            return false;
-          }
-        })(),
-      });
     } catch (error) {
-      console.error('AuthContext: Error saving to localStorage:', error);
+      console.error('AuthContext: Error saving auth data:', error);
     }
   };
 
@@ -159,7 +110,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     // Also clear cookie
     document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-    router.push('/login');
+    router.push(ROUTES.LOGIN);
   };
 
   return (

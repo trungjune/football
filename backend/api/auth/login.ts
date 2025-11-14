@@ -1,4 +1,13 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { 
+  USER_ROLES, 
+  USER_IDS, 
+  DEFAULT_CREDENTIALS, 
+  TOKEN_CONFIG, 
+  HTTP_STATUS, 
+  HTTP_METHODS,
+  MEMBER_NAMES
+} from '../../../shared/src/constants/auth';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
@@ -8,51 +17,90 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
     res.setHeader('Access-Control-Allow-Credentials', 'true');
 
-    if (req.method === 'OPTIONS') {
-      res.status(200).end();
+    if (req.method === HTTP_METHODS.OPTIONS) {
+      res.status(HTTP_STATUS.OK).end();
       return;
     }
 
-    if (req.method !== 'POST') {
-      res.status(405).json({ error: 'Method not allowed' });
+    if (req.method !== HTTP_METHODS.POST) {
+      res.status(HTTP_STATUS.METHOD_NOT_ALLOWED).json({ error: 'Method not allowed' });
       return;
     }
 
     const { email, password } = req.body || {};
 
     if (!email || !password) {
-      res.status(400).json({ error: 'Email and password are required' });
+      res.status(HTTP_STATUS.BAD_REQUEST).json({ error: 'Email and password are required' });
       return;
     }
 
-    // Simple mock authentication
+    // Route to NestJS auth service for proper JWT authentication
+    try {
+      const nestApp = await import('../index').then(m => m.createNestApp ? m.createNestApp() : null);
+      if (nestApp) {
+        const expressReq = {
+          ...req,
+          url: '/auth/login',
+          path: '/auth/login',
+          originalUrl: '/auth/login',
+          body: { email, password }
+        };
+        return nestApp.getHttpAdapter().getInstance()(expressReq, res);
+      }
+    } catch (error) {
+      console.error('Failed to route to NestJS auth:', error);
+    }
+
+    // Fallback mock authentication if NestJS fails
     const validCredentials = [
-      { email: 'admin@football.com', password: 'admin123', role: 'ADMIN' },
-      { email: 'nguyen.huu.phuc.fcvuive@gmail.com', password: 'admin123', role: 'MEMBER' },
+      { 
+        email: DEFAULT_CREDENTIALS.ADMIN.EMAIL, 
+        password: DEFAULT_CREDENTIALS.ADMIN.PASSWORD, 
+        role: DEFAULT_CREDENTIALS.ADMIN.ROLE,
+        id: DEFAULT_CREDENTIALS.ADMIN.ID
+      },
+      { 
+        email: DEFAULT_CREDENTIALS.MEMBER.EMAIL, 
+        password: DEFAULT_CREDENTIALS.MEMBER.PASSWORD, 
+        role: DEFAULT_CREDENTIALS.MEMBER.ROLE,
+        id: DEFAULT_CREDENTIALS.MEMBER.ID
+      },
     ];
 
     const user = validCredentials.find(u => u.email === email && u.password === password);
 
     if (user) {
-      // Simple token (in production, use proper JWT)
-      const token = Buffer.from(`${user.email}:${user.role}:${Date.now()}`).toString('base64');
+      // Create a more JWT-like token structure
+      const currentTime = Math.floor(Date.now() / 1000);
+      const expiryTime = currentTime + (TOKEN_CONFIG.EXPIRY_DAYS * TOKEN_CONFIG.SECONDS_PER_DAY);
+      
+      const payload = {
+        sub: user.id,
+        email: user.email,
+        role: user.role,
+        iat: currentTime,
+        exp: expiryTime
+      };
+      
+      // Simple JWT-like token (base64 encoded payload)
+      const token = Buffer.from(JSON.stringify(payload)).toString('base64');
 
-      res.status(200).json({
+      res.status(HTTP_STATUS.OK).json({
         user: {
-          id: user.email === 'admin@football.com' ? '1' : '2',
+          id: payload.sub,
           email: user.email,
           role: user.role,
-          member: user.role === 'MEMBER' ? { id: '1', fullName: 'Nguyễn Hữu Phúc' } : null,
+          member: user.role === USER_ROLES.MEMBER ? { id: USER_IDS.DEFAULT_MEMBER, fullName: MEMBER_NAMES.DEFAULT_MEMBER_FULL_NAME } : null,
         },
         access_token: token,
       });
       return;
     }
 
-    res.status(401).json({ error: 'Invalid credentials' });
+    res.status(HTTP_STATUS.UNAUTHORIZED).json({ error: 'Invalid credentials' });
   } catch (error) {
     console.error('Login error:', error);
-    res.status(500).json({
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
       error: 'Internal server error',
       message: error instanceof Error ? error.message : 'Unknown error',
     });

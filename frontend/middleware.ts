@@ -1,20 +1,19 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { API_ENDPOINTS } from '@shared/constants/api';
+import { ROUTES } from '@shared/constants/auth';
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Các route công khai không cần xác thực
   const publicRoutes = [
-    '/',
-    '/login',
-    '/register',
-    '/auth/signup',
-    '/auth/error',
-    '/offline',
-    '/test-dashboard',
-    '/debug-auth',
+    ROUTES.HOME,
+    ROUTES.LOGIN,
+    ROUTES.REGISTER,
+    ROUTES.AUTH_SIGNUP,
+    ROUTES.AUTH_ERROR,
+    ROUTES.OFFLINE,
   ];
 
   // Các route API công khai
@@ -25,10 +24,10 @@ export function middleware(request: NextRequest) {
   ];
 
   // Kiểm tra nếu là route công khai
-  if (
-    publicRoutes.includes(pathname) ||
-    publicApiRoutes.some(route => pathname.startsWith(route))
-  ) {
+  const isPublicRoute = publicRoutes.some(route => pathname === route);
+  const isPublicApiRoute = publicApiRoutes.some(route => pathname.startsWith(route));
+  
+  if (isPublicRoute || isPublicApiRoute) {
     return NextResponse.next();
   }
 
@@ -42,7 +41,7 @@ export function middleware(request: NextRequest) {
 
   // Nếu không có token và đang truy cập route bảo vệ
   if (!token && !pathname.startsWith('/api/')) {
-    const loginUrl = new URL('/login', request.url);
+    const loginUrl = new URL(ROUTES.LOGIN, request.url);
     loginUrl.searchParams.set('redirect', pathname);
     return NextResponse.redirect(loginUrl);
   }
