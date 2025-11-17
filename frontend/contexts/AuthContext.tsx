@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { TOKEN_CONFIG, ROUTES } from '@shared/constants/auth';
 import { User } from '@shared/types/entities/user';
@@ -20,9 +20,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const hasInitialized = useRef(false);
 
   useEffect(() => {
-    // Check for stored auth data on mount
+    // Check for stored auth data on mount (only once)
+    if (hasInitialized.current) return;
+    hasInitialized.current = true;
+
     try {
       const storedToken = localStorage.getItem('token');
       const storedUser = localStorage.getItem('user');
@@ -56,31 +60,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setLoading(false);
   }, []);
 
-  // Listen for localStorage changes (when user clears site data)
+  // Listen for storage events (when localStorage is changed in another tab)
   useEffect(() => {
     const handleStorageChange = () => {
       const storedToken = localStorage.getItem('token');
       const storedUser = localStorage.getItem('user');
 
-      // If user was logged in but localStorage is cleared or invalid
-      if ((user || token) && (!storedToken || !storedUser || storedUser === 'undefined')) {
+      // If localStorage is cleared or invalid
+      if (!storedToken || !storedUser || storedUser === 'undefined') {
         setToken(null);
         setUser(null);
         router.push(`${ROUTES.LOGIN}?message=Dữ liệu đăng nhập đã bị xóa`);
       }
     };
 
-    // Check every 1 second for localStorage changes
-    const interval = setInterval(handleStorageChange, 1000);
-
-    // Also listen for storage events (when localStorage is changed in another tab)
+    // Listen for storage events (when localStorage is changed in another tab)
     window.addEventListener('storage', handleStorageChange);
 
     return () => {
-      clearInterval(interval);
       window.removeEventListener('storage', handleStorageChange);
     };
-  }, [user, token, router]);
+  }, [router]);
 
   const login = (newToken: string, newUser: User) => {
     if (!newToken || !newUser || !newUser.id || !newUser.email) {
