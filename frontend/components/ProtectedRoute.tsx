@@ -19,7 +19,7 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
       console.log('[ProtectedRoute] No user, redirecting to login');
       router.push('/login');
     }
-  }, [user, loading, router]);
+  }, [user?.id, loading, router]);
 
   console.log('[ProtectedRoute] Render:', { user: !!user, loading });
 
