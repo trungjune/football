@@ -36,21 +36,8 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Kiểm tra token từ cookie (set bởi AuthContext)
-  const token = request.cookies.get('token')?.value;
-
-  console.log('[Middleware] Path:', pathname, 'Token:', token ? 'YES' : 'NO');
-
-  // Nếu không có token và đang truy cập route bảo vệ
-  if (!token) {
-    console.log('[Middleware] No token, redirecting to login');
-    const loginUrl = new URL(ROUTES.LOGIN, request.url);
-    loginUrl.searchParams.set('redirect', pathname);
-    return NextResponse.redirect(loginUrl);
-  }
-
-  console.log('[Middleware] Token found, allowing access');
-  // Cho phép tiếp tục
+  // Allow all other routes - let client-side handle auth via AuthContext
+  // This prevents middleware from redirecting before AuthContext mounts
   return NextResponse.next();
 }
 

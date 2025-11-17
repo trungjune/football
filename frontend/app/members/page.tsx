@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { AppLayout } from '@/components/layout/app-layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -53,7 +54,7 @@ const statusNames = {
   LEFT: 'Đã rời đội',
 };
 
-export default function MembersPage() {
+function MembersContent() {
   const router = useRouter();
   const [members, setMembers] = useState<Member[]>([]);
   const [filteredMembers, setFilteredMembers] = useState<Member[]>([]);
@@ -440,5 +441,13 @@ export default function MembersPage() {
         />
       </div>
     </AppLayout>
+  );
+}
+
+export default function MembersPage() {
+  return (
+    <ProtectedRoute>
+      <MembersContent />
+    </ProtectedRoute>
   );
 }
