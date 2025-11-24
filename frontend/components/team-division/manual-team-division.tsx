@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import {
@@ -11,7 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { ArrowRight, ArrowLeft, Users, Trash2 } from 'lucide-react';
+import { ArrowRight, ArrowLeft, Users, Trash2, Plus } from 'lucide-react';
 
 type Position = 'GOALKEEPER' | 'DEFENDER' | 'MIDFIELDER' | 'FORWARD';
 
@@ -27,10 +29,6 @@ interface ManualTeam {
   participants: Participant[];
 }
 
-interface ManualTeamDivisionProps {
-  participants: Participant[];
-}
-
 const positionNames: Record<Position, string> = {
   GOALKEEPER: 'Thủ môn',
   DEFENDER: 'Hậu vệ',
@@ -38,11 +36,125 @@ const positionNames: Record<Position, string> = {
   FORWARD: 'Tiền đạo',
 };
 
-export function ManualTeamDivision({ participants }: ManualTeamDivisionProps) {
+const positionShortNames: Record<string, Position> = {
+  GK: 'GOALKEEPER',
+  GOALKEEPER: 'GOALKEEPER',
+  CB: 'DEFENDER',
+  DEFENDER: 'DEFENDER',
+  LM: 'MIDFIELDER',
+  RM: 'MIDFIELDER',
+  CM: 'MIDFIELDER',
+  MIDFIELDER: 'MIDFIELDER',
+  ST: 'FORWARD',
+  FORWARD: 'FORWARD',
+};
+
+export function ManualTeamDivision() {
+  const [participants, setParticipants] = useState<Participant[]>([]);
   const [numberOfTeams, setNumberOfTeams] = useState(2);
   const [teams, setTeams] = useState<ManualTeam[]>([]);
   const [unassignedParticipants, setUnassignedParticipants] = useState<Participant[]>([]);
   const [selectedParticipant, setSelectedParticipant] = useState<string | null>(null);
+  
+  // Form states for adding single participant
+  const [name, setName] = useState('');
+  const [skill, setSkill] = useState('3');
+  const [position, setPosition] = useState<Position>('FORWARD');
+  const [bulkParticipants, setBulkParticipants] = useState('');
+
+  // Parse bulk participant string
+  const parseParticipantString = (str: string): Participant | null => {
+    const parts = str.match(/[^\s"]+|"([^"]*)"/g)?.map(part => part.replace(/"/g, '').trim()) || [];
+    if (parts.length < 1) return null;
+
+    const dataStartIndex = parts.findIndex(
+      part => !isNaN(Number(part)) || Object.keys(positionShortNames).includes(part.toUpperCase())
+    );
+
+    const participantName =
+      dataStartIndex === -1
+        ? parts.join(' ').trim()
+        : parts.slice(0, dataStartIndex).join(' ').trim();
+
+    if (!participantName) return null;
+
+    const remainingParts = dataStartIndex === -1 ? [] : parts.slice(dataStartIndex);
+
+    let participantSkill = 3;
+    let participantPosition: Position = 'FORWARD';
+
+    for (const part of remainingParts) {
+      if (!isNaN(Number(part))) {
+        participantSkill = Math.max(1, Math.min(5, Number(part)));
+      } else if (Object.keys(positionShortNames).includes(part.toUpperCase())) {
+        participantPosition = positionShortNames[part.toUpperCase()];
+      }
+    }
+
+    return {
+      id: `manual-${Date.now()}-${Math.random()}`,
+      name: participantName,
+      skill: participantSkill,
+      position: participantPosition,
+    };
+  };
+
+  // Add single participant
+  const addParticipant = () => {
+    if (!name.trim()) {
+      alert('Chưa nhập tên người chơi');
+      return;
+    }
+
+    const newParticipant: Participant = {
+      id: `manual-${Date.now()}-${Math.random()}`,
+      name: name.trim(),
+      skill: Number(skill),
+      position,
+    };
+
+    setParticipants(prev => [...prev, newParticipant]);
+    setName('');
+    setSkill('3');
+    setPosition('FORWARD');
+  };
+
+  // Import bulk participants
+  const importParticipants = () => {
+    if (!bulkParticipants.trim()) {
+      alert('Vui lòng nhập dữ liệu người tham gia');
+      return;
+    }
+
+    const lines = bulkParticipants.split('\n');
+    const newParticipants = lines
+      .map(parseParticipantString)
+      .filter((p): p is Participant => p !== null);
+
+    if (newParticipants.length === 0) {
+      alert('Không tìm thấy dữ liệu người tham gia hợp lệ');
+      return;
+    }
+
+    setParticipants(prev => [...prev, ...newParticipants]);
+    setBulkParticipants('');
+  };
+
+  // Remove participant
+  const removeParticipant = (participantId: string) => {
+    setParticipants(prev => prev.filter(p => p.id !== participantId));
+  };
+
+  // Update participant
+  const updateParticipant = (
+    participantId: string,
+    field: keyof Participant,
+    value: string | number | Position
+  ) => {
+    setParticipants(prev =>
+      prev.map(p => (p.id === participantId ? { ...p, [field]: value } : p))
+    );
+  };
 
   // Khởi tạo đội
   const initializeTeams = () => {
@@ -131,6 +243,159 @@ export function ManualTeamDivision({ participants }: ManualTeamDivisionProps) {
 
   return (
     <div className="space-y-6">
+      {/* Add Participants Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Thêm người chơi</CardTitle>
+          <CardDescription>Thêm người chơi một cách đơn lẻ hoặc hàng loạt</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {/* Single Add */}
+            <div className="grid grid-cols-[3fr,1fr,1fr,auto] gap-2 items-end">
+              <div>
+                <Label htmlFor="playerName">Tên</Label>
+                <Input
+                  placeholder="Tên người chơi"
+                  id="playerName"
+                  value={name}
+                  onChange={e => setName(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && addParticipant()}
+                />
+              </div>
+              <div>
+                <Label htmlFor="playerSkill">Kỹ năng</Label>
+                <Select value={skill} onValueChange={setSkill}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Kỹ năng" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {[1, 2, 3, 4, 5].map(s => (
+                      <SelectItem key={s} value={s.toString()}>
+                        {s}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="playerPosition">Vị trí</Label>
+                <Select value={position} onValueChange={(value: Position) => setPosition(value)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Vị trí" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.entries(positionNames).map(([key, value]) => (
+                      <SelectItem key={key} value={key}>
+                        {value}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <Button onClick={addParticipant}>
+                <Plus className="h-4 w-4" />
+              </Button>
+            </div>
+
+            {/* Bulk Import */}
+            <div className="space-y-2">
+              <Label htmlFor="bulkImport">Nhập hàng loạt</Label>
+              <Textarea
+                id="bulkImport"
+                className="h-32"
+                placeholder={
+                  'Sao chép và dán danh sách người chơi. Mỗi người chơi một dòng,\n' +
+                  'Theo định dạng: Tên KỹNăng VịTrí\n' +
+                  'Ví dụ: Nguyễn Văn A 3 ST\n' +
+                  'hoặc: Nguyễn Văn A, 3, ST\n' +
+                  'hoặc: Nguyễn Văn A; 3; ST\n' +
+                  'hoặc: Nguyễn Văn A - 3 - ST'
+                }
+                value={bulkParticipants}
+                onChange={e => setBulkParticipants(e.target.value)}
+              />
+              <Button onClick={importParticipants} className="w-full">
+                Nhập danh sách
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Participants List */}
+      {participants.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Danh sách người chơi ({participants.length})</CardTitle>
+            <CardDescription>Danh sách người chơi đã thêm</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              <div className="grid grid-cols-[40px,2fr,1fr,1fr,50px] gap-2 font-bold text-center text-sm">
+                <div>STT</div>
+                <div>Tên</div>
+                <div>Kỹ năng</div>
+                <div>Vị trí</div>
+                <div></div>
+              </div>
+              {participants.map((p, index) => (
+                <div
+                  key={p.id}
+                  className="grid grid-cols-[40px,2fr,1fr,1fr,50px] gap-2 items-center"
+                >
+                  <div className="text-center text-sm">{index + 1}</div>
+                  <Input
+                    value={p.name}
+                    onChange={e => updateParticipant(p.id, 'name', e.target.value)}
+                    className="h-8"
+                  />
+                  <Select
+                    value={p.skill.toString()}
+                    onValueChange={value => updateParticipant(p.id, 'skill', Number(value))}
+                  >
+                    <SelectTrigger className="h-8 text-center">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {[1, 2, 3, 4, 5].map(s => (
+                        <SelectItem key={s} value={s.toString()}>
+                          {s}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Select
+                    value={p.position}
+                    onValueChange={value => updateParticipant(p.id, 'position', value)}
+                  >
+                    <SelectTrigger className="h-8 text-center">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Object.entries(positionNames).map(([key, value]) => (
+                        <SelectItem key={key} value={key}>
+                          {value}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="h-8 w-8"
+                    onClick={() => removeParticipant(p.id)}
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </Button>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Team Division Settings */}
       <Card>
         <CardHeader>
           <CardTitle>Cài đặt chia đội thủ công</CardTitle>
@@ -166,7 +431,7 @@ export function ManualTeamDivision({ participants }: ManualTeamDivisionProps) {
             {participants.length === 0 && (
               <div className="rounded-lg border border-dashed bg-muted/50 p-4">
                 <p className="text-center text-sm text-muted-foreground">
-                  Vui lòng chọn thành viên ở phần trên trước khi bắt đầu chia đội
+                  Vui lòng thêm người chơi ở phần trên trước khi bắt đầu chia đội
                 </p>
               </div>
             )}
