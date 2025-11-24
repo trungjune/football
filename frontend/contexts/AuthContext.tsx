@@ -113,19 +113,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Listen for storage events (when localStorage is changed in another tab)
   useEffect(() => {
-    const handleStorageChange = () => {
-      const storedToken = localStorage.getItem('token');
-      const storedUser = localStorage.getItem('user');
+    const handleStorageChange = (e: StorageEvent) => {
+      // Chỉ xử lý khi có thay đổi từ tab khác
+      if (e.key === 'token' || e.key === 'user') {
+        const storedToken = localStorage.getItem('token');
+        const storedUser = localStorage.getItem('user');
 
-      // If localStorage is cleared or invalid
-      if (!storedToken || !storedUser || storedUser === 'undefined') {
-        setToken(null);
-        setUser(null);
-        router.push(`${ROUTES.LOGIN}?message=Dữ liệu đăng nhập đã bị xóa`);
+        // Nếu token hoặc user bị xóa từ tab khác
+        if (!storedToken || !storedUser || storedUser === 'undefined' || storedUser === 'null') {
+          setToken(null);
+          setUser(null);
+          router.push(`${ROUTES.LOGIN}?message=Phiên đăng nhập đã hết hạn`);
+        }
       }
     };
 
-    // Listen for storage events (when localStorage is changed in another tab)
+    // Storage event chỉ trigger khi localStorage thay đổi từ tab khác
     window.addEventListener('storage', handleStorageChange);
 
     return () => {
