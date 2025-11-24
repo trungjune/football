@@ -34,8 +34,8 @@ export class FinanceController {
   @Roles(Role.ADMIN)
   @Post('fees')
   createFee(@Body() createFeeDto: CreateFeeDto) {
-    // For now, use a default team ID. In a real app, this would come from the user's team
-    const teamId = 'team-1';
+    // Use FC Vui Vẻ team ID from seed data
+    const teamId = 'fc-vui-ve';
     return this.financeService.createFee(createFeeDto, teamId);
   }
 
@@ -43,8 +43,8 @@ export class FinanceController {
   @ApiResponse({ status: 200, description: 'Fees retrieved successfully' })
   @Get('fees')
   findAllFees(@Query() searchDto: FinanceSearchDto) {
-    // For now, use a default team ID. In a real app, this would come from the user's team
-    const teamId = 'team-1';
+    // Use FC Vui Vẻ team ID from seed data
+    const teamId = 'fc-vui-ve';
     return this.financeService.findAllFees(searchDto, teamId);
   }
 
@@ -88,8 +88,8 @@ export class FinanceController {
   @ApiResponse({ status: 200, description: 'Payments retrieved successfully' })
   @Get('payments')
   findAllPayments(@Query() searchDto: FinanceSearchDto) {
-    // For now, use a default team ID. In a real app, this would come from the user's team
-    const teamId = 'team-1';
+    // Use FC Vui Vẻ team ID from seed data
+    const teamId = 'fc-vui-ve';
     return this.financeService.findAllPayments(searchDto, teamId);
   }
 
@@ -112,8 +112,8 @@ export class FinanceController {
   @ApiQuery({ name: 'dateTo', required: false })
   @Get('summary')
   getFinancialSummary(@Query('dateFrom') dateFrom?: string, @Query('dateTo') dateTo?: string) {
-    // For now, use a default team ID. In a real app, this would come from the user's team
-    const teamId = 'team-1';
+    // Use FC Vui Vẻ team ID from seed data
+    const teamId = 'fc-vui-ve';
     return this.financeService.getFinancialSummary(teamId, dateFrom, dateTo);
   }
 
@@ -121,8 +121,8 @@ export class FinanceController {
   @ApiResponse({ status: 200, description: 'Debt list retrieved successfully' })
   @Get('debts')
   getDebtList() {
-    // For now, use a default team ID. In a real app, this would come from the user's team
-    const teamId = 'team-1';
+    // Use FC Vui Vẻ team ID from seed data
+    const teamId = 'fc-vui-ve';
     return this.financeService.getDebtList(teamId);
   }
 
@@ -136,7 +136,7 @@ export class FinanceController {
     @Query('dateTo') dateTo?: string,
     @Res() res?: Response,
   ) {
-    const teamId = 'team-1';
+    const teamId = 'fc-vui-ve';
     const pdfBuffer = await this.financeService.exportFinancialReportPdf(teamId, dateFrom, dateTo);
 
     const filename = `bao-cao-tai-chinh-${new Date().toISOString().split('T')[0]}.pdf`;
@@ -157,7 +157,7 @@ export class FinanceController {
     @Query('dateTo') dateTo?: string,
     @Res() res?: Response,
   ) {
-    const teamId = 'team-1';
+    const teamId = 'fc-vui-ve';
     const excelBuffer = await this.financeService.exportFinancialReportExcel(
       teamId,
       dateFrom,
@@ -178,7 +178,7 @@ export class FinanceController {
   @Header('Content-Type', 'application/pdf')
   @Get('debts/export/pdf')
   async exportDebtReportPdf(@Res() res?: Response) {
-    const teamId = 'team-1';
+    const teamId = 'fc-vui-ve';
     const pdfBuffer = await this.financeService.exportDebtReportPdf(teamId);
 
     const filename = `bao-cao-cong-no-${new Date().toISOString().split('T')[0]}.pdf`;
