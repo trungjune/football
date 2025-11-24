@@ -22,6 +22,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
   const hasInitialized = useRef(false);
 
+  // Kiểm tra token có hết hạn không
+  const isTokenExpired = (tokenTimestamp: string | null): boolean => {
+    if (!tokenTimestamp) return true;
+    
+    const loginTime = parseInt(tokenTimestamp, 10);
+    if (isNaN(loginTime)) return true;
+    
+    const currentTime = Date.now();
+    const expiryTime = loginTime + (TOKEN_CONFIG.EXPIRY_DAYS * TOKEN_CONFIG.SECONDS_PER_DAY * 1000);
+    
+    return currentTime > expiryTime;
+  };
+
   useEffect(() => {
     // Check for stored auth data on mount (only once)
     if (hasInitialized.current) return;
@@ -30,6 +43,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const storedToken = localStorage.getItem('token');
       const storedUser = localStorage.getItem('user');
+      const tokenTimestamp = localStorage.getItem('tokenTimestamp');
+
+      // Kiểm tra token hết hạn
+      if (isTokenExpired(tokenTimestamp)) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        localStorage.removeItem('tokenTimestamp');
+        setLoading(false);
+        return;
+      }
 
       if (storedToken && storedUser && storedUser !== 'undefined' && storedUser !== 'null') {
         try {
@@ -40,17 +63,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           } else {
             localStorage.removeItem('token');
             localStorage.removeItem('user');
+            localStorage.removeItem('tokenTimestamp');
           }
         } catch (error) {
           console.error('AuthContext: Error parsing user data:', error);
           localStorage.removeItem('token');
           localStorage.removeItem('user');
+          localStorage.removeItem('tokenTimestamp');
         }
       } else {
         // Clear any invalid data
         if (storedUser === 'undefined' || storedUser === 'null') {
           localStorage.removeItem('token');
           localStorage.removeItem('user');
+          localStorage.removeItem('tokenTimestamp');
         }
       }
     } catch (error) {
@@ -59,6 +85,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     setLoading(false);
   }, []);
+
+  // Kiểm tra token expiry định kỳ (mỗi phút)
+  useEffect(() => {
+    if (!token) return;
+
+    const checkTokenExpiry = () => {
+      const tokenTimestamp = localStorage.getItem('tokenTimestamp');
+      if (isTokenExpired(tokenTimestamp)) {
+        // Clear auth state
+        setToken(null);
+        setUser(null);
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        localStorage.removeItem('tokenTimestamp');
+        document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+        
+        router.push(`${ROUTES.LOGIN}?message=Phiên đăng nhập đã hết hạn`);
+      }
+    };
+
+    // Kiểm tra mỗi phút
+    const interval = setInterval(checkTokenExpiry, 60000);
+
+    return () => clearInterval(interval);
+  }, [token, router, isTokenExpired]);
 
   // Listen for storage events (when localStorage is changed in another tab)
   useEffect(() => {
@@ -94,6 +145,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       localStorage.setItem('token', newToken);
       localStorage.setItem('user', JSON.stringify(newUser));
+      localStorage.setItem('tokenTimestamp', Date.now().toString());
       
       const maxAge = TOKEN_CONFIG.EXPIRY_DAYS * TOKEN_CONFIG.SECONDS_PER_DAY;
       const cookieValue = `token=${newToken}; path=/; max-age=${maxAge}; SameSite=Lax; Secure=${window.location.protocol === 'https:'}`;
@@ -108,6 +160,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    localStorage.removeItem('tokenTimestamp');
 
     // Also clear cookie
     document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
