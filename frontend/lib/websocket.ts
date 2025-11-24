@@ -3,10 +3,17 @@ import { io, Socket } from 'socket.io-client';
 class WebSocketService {
   private socket: Socket | null = null;
   private reconnectAttempts = 0;
-  private maxReconnectAttempts = 5;
-  private reconnectDelay = 1000;
+  private maxReconnectAttempts = 3;
+  private reconnectDelay = 2000;
+  private isProduction = process.env.NODE_ENV === 'production';
 
   async connect() {
+    // Tắt WebSocket trên production vì Vercel không support
+    if (this.isProduction) {
+      console.log('WebSocket disabled on production (Vercel serverless)');
+      return null;
+    }
+
     if (this.socket?.connected) {
       return this.socket;
     }
@@ -19,7 +26,7 @@ class WebSocketService {
         return null;
       }
 
-      const serverUrl = process.env.NODE_ENV === 'production' ? '/ws' : 'http://localhost:3001/ws';
+      const serverUrl = 'http://localhost:3001/ws';
 
       this.socket = io(serverUrl, {
         auth: {
@@ -125,8 +132,13 @@ class WebSocketService {
   }
 
   private handleReconnect() {
+    // Không reconnect trên production
+    if (this.isProduction) {
+      return;
+    }
+
     if (this.reconnectAttempts >= this.maxReconnectAttempts) {
-      console.error('Max reconnection attempts reached');
+      console.log('Max reconnection attempts reached');
       return;
     }
 

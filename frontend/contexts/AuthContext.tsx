@@ -88,7 +88,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    console.log('[AuthContext] Logging in user:', newUser.email);
     setToken(newToken);
     setUser(newUser);
 
@@ -99,7 +98,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const maxAge = TOKEN_CONFIG.EXPIRY_DAYS * TOKEN_CONFIG.SECONDS_PER_DAY;
       const cookieValue = `token=${newToken}; path=/; max-age=${maxAge}; SameSite=Lax; Secure=${window.location.protocol === 'https:'}`;
       document.cookie = cookieValue;
-      console.log('[AuthContext] Token saved to cookie:', cookieValue.substring(0, 50) + '...');
     } catch (error) {
       console.error('AuthContext: Error saving auth data:', error);
     }
@@ -128,6 +126,5 @@ export function useAuth() {
   if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
-  console.log('[useAuth] Returning context:', { user: !!context.user, loading: context.loading });
   return context;
 }
