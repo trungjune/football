@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { AppLayout } from '@/components/layout/app-layout';
 import { Button } from '@/components/ui/button';
-
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -13,8 +13,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { RefreshCw, Trash2, Plus, Users } from 'lucide-react';
+import { RefreshCw, Trash2, Plus, Users, Hand } from 'lucide-react';
 import api from '@/lib/axios';
+import { ManualTeamDivision } from '@/components/team-division/manual-team-division';
 
 type Position = 'GOALKEEPER' | 'DEFENDER' | 'MIDFIELDER' | 'FORWARD';
 type BalanceStrategy = 'RANDOM' | 'SKILL_BALANCED' | 'POSITION_BALANCED' | 'BALANCED';
@@ -165,6 +166,20 @@ export default function TeamDivisionPage() {
             Chia thành viên thành các đội cân bằng cho trận đấu
           </p>
         </div>
+
+        <Tabs defaultValue="auto" className="w-full">
+          <TabsList className="grid w-full max-w-md grid-cols-2">
+            <TabsTrigger value="auto" className="flex items-center gap-2">
+              <RefreshCw className="h-4 w-4" />
+              Chia đội tự động
+            </TabsTrigger>
+            <TabsTrigger value="manual" className="flex items-center gap-2">
+              <Hand className="h-4 w-4" />
+              Chia đội thủ công
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="auto" className="space-y-6 mt-6">
 
         <Card>
           <CardHeader>
@@ -411,6 +426,69 @@ export default function TeamDivisionPage() {
             </CardContent>
           </Card>
         )}
+          </TabsContent>
+
+          <TabsContent value="manual" className="space-y-6 mt-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Chọn thành viên</CardTitle>
+                <CardDescription>Chọn thành viên tham gia chia đội thủ công</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                    <div>
+                      <Label>Thành viên có sẵn</Label>
+                      <div className="mt-2 max-h-60 overflow-y-auto rounded-md border p-2">
+                        {availableMembers.map(member => (
+                          <div
+                            key={member.id}
+                            className="flex cursor-pointer items-center justify-between rounded p-2 hover:bg-accent"
+                            onClick={() => addParticipant(member.id)}
+                          >
+                            <div>
+                              <p className="font-medium">{member.fullName}</p>
+                              <p className="text-sm text-muted-foreground">
+                                {getPositionDisplay(member.position)} - Kỹ năng:{' '}
+                                {calculateMemberSkill(member)}
+                              </p>
+                            </div>
+                            <Plus className="h-4 w-4" />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div>
+                      <Label>Thành viên đã chọn ({participants.length})</Label>
+                      <div className="mt-2 max-h-60 overflow-y-auto rounded-md border p-2">
+                        {participants.map((participant, index) => (
+                          <div
+                            key={participant.id}
+                            className="flex items-center justify-between rounded p-2 hover:bg-accent"
+                          >
+                            <div>
+                              <p className="font-medium">{participant.name}</p>
+                              <p className="text-sm text-muted-foreground">
+                                {getPositionDisplay(participant.position)} - Kỹ năng:{' '}
+                                {participant.skill}
+                              </p>
+                            </div>
+                            <Button variant="ghost" size="sm" onClick={() => removeParticipant(index)}>
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <ManualTeamDivision participants={participants} />
+          </TabsContent>
+        </Tabs>
       </div>
     </AppLayout>
   );
