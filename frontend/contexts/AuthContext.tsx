@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useState, useEffect, ReactNode, useRef } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { TOKEN_CONFIG, ROUTES } from '@shared/constants/auth';
 import { User } from '@shared/types/entities/user';
@@ -23,7 +23,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const hasInitialized = useRef(false);
 
   // Kiểm tra token có hết hạn không
-  const isTokenExpired = (tokenTimestamp: string | null): boolean => {
+  const isTokenExpired = useCallback((tokenTimestamp: string | null): boolean => {
     if (!tokenTimestamp) return true;
     
     const loginTime = parseInt(tokenTimestamp, 10);
@@ -33,7 +33,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const expiryTime = loginTime + (TOKEN_CONFIG.EXPIRY_DAYS * TOKEN_CONFIG.SECONDS_PER_DAY * 1000);
     
     return currentTime > expiryTime;
-  };
+  }, []);
 
   useEffect(() => {
     // Check for stored auth data on mount (only once)
@@ -84,7 +84,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     setLoading(false);
-  }, []);
+  }, [isTokenExpired]);
 
   // Kiểm tra token expiry định kỳ (mỗi phút)
   useEffect(() => {
