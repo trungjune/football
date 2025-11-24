@@ -12,6 +12,7 @@ import { WebSocketModule } from './websocket/websocket.module';
 import { CacheModule } from './cache/cache.module';
 import { HealthModule } from './health/health.module';
 import { DashboardModule } from './dashboard/dashboard.module';
+import { SettingsModule } from './settings/settings.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { DashboardModule } from './dashboard/dashboard.module';
     CacheModule,
     HealthModule,
     DashboardModule,
+    SettingsModule,
   ],
   controllers: [],
   providers: [],
