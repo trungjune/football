@@ -10,7 +10,6 @@ class WebSocketService {
   async connect() {
     // Tắt WebSocket trên production vì Vercel không support
     if (this.isProduction) {
-      console.log('WebSocket disabled on production (Vercel serverless)');
       return null;
     }
 
@@ -50,12 +49,10 @@ class WebSocketService {
     if (!this.socket) return;
 
     this.socket.on('connect', () => {
-      console.log('Connected to WebSocket server');
       this.reconnectAttempts = 0;
     });
 
     this.socket.on('disconnect', reason => {
-      console.log('Disconnected from WebSocket server:', reason);
 
       if (reason === 'io server disconnect') {
         // Server disconnected, try to reconnect
@@ -138,14 +135,11 @@ class WebSocketService {
     }
 
     if (this.reconnectAttempts >= this.maxReconnectAttempts) {
-      console.log('Max reconnection attempts reached');
       return;
     }
 
     this.reconnectAttempts++;
     const delay = this.reconnectDelay * Math.pow(2, this.reconnectAttempts - 1);
-
-    console.log(`Attempting to reconnect in ${delay}ms (attempt ${this.reconnectAttempts})`);
 
     setTimeout(() => {
       this.connect();

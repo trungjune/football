@@ -12,8 +12,6 @@ export default function LoginPage() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('LoginPage: Form submitted with:', { email, password });
-    console.log('LoginPage: loginMutation status:', loginMutation.status);
     loginMutation.mutate({ email, password });
   };
 

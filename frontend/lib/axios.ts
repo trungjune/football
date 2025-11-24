@@ -12,9 +12,6 @@ api.interceptors.request.use(
     const token = localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
-      console.log('[axios] Adding token to request:', config.url, 'Token:', token.substring(0, 20) + '...');
-    } else {
-      console.log('[axios] No token found for request:', config.url);
     }
     return config;
   },
@@ -27,26 +24,18 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   response => response,
   error => {
-    console.log('[axios] Response error:', error.response?.status, error.config?.url);
-    
     if (error.response?.status === 401) {
       const token = localStorage.getItem('token');
-      console.log('[axios] 401 Unauthorized, token exists:', !!token);
 
       // Only redirect if user was already logged in (has token)
       if (token) {
-        console.log('[axios] Clearing auth and redirecting to login');
         localStorage.removeItem('token');
         localStorage.removeItem('user');
 
-        // Show notification if possible
+        // Redirect to login
         if (typeof window !== 'undefined' && window.location.pathname !== '/login') {
-          alert('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
+          window.location.href = `${ROUTES.LOGIN}?message=Phiên đăng nhập đã hết hạn`;
         }
-
-        window.location.href = `${ROUTES.LOGIN}?message=Phiên đăng nhập đã hết hạn`;
-      } else {
-        console.log('[axios] No token, not redirecting');
       }
     }
     return Promise.reject(error);

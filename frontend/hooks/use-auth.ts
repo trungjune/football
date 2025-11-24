@@ -17,17 +17,12 @@ export function useLogin() {
   const router = useRouter();
 
   return useMutation({
-    mutationFn: (data: LoginRequest) => {
-      console.log('useLogin: Starting login mutation with data:', data);
-      return authApi.login(data);
-    },
+    mutationFn: (data: LoginRequest) => authApi.login(data),
     onSuccess: data => {
-      console.log('useLogin: Login successful, data:', data);
       login(data.access_token, data.user);
 
       // Đợi state được cập nhật và redirect
       setTimeout(() => {
-        console.log('useLogin: Redirecting to dashboard');
         if (data.user.role === 'ADMIN') {
           router.push('/dashboard');
         } else {
