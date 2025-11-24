@@ -25,10 +25,15 @@ export function useLogin() {
       console.log('useLogin: Login successful, data:', data);
       login(data.access_token, data.user);
 
-      // Đợi một chút để đảm bảo state được cập nhật
+      // Đợi state được cập nhật và redirect
       setTimeout(() => {
-        router.push('/dashboard');
-      }, 100);
+        console.log('useLogin: Redirecting to dashboard');
+        if (data.user.role === 'ADMIN') {
+          router.push('/dashboard');
+        } else {
+          router.push('/member');
+        }
+      }, 300);
     },
     onError: (error: ApiError) => {
       console.error('useLogin: Login failed with error:', error);
