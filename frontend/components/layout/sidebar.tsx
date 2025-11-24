@@ -29,12 +29,12 @@ export function Sidebar() {
   const { user } = useAuth();
 
   return (
-    <div className="flex h-screen w-64 flex-col bg-card border-r">
+    <div className="fixed left-0 top-0 flex h-screen w-64 flex-col bg-card border-r">
       <div className="flex h-16 items-center px-6 border-b">
         <h1 className="text-xl font-bold">⚽ FC Manager</h1>
       </div>
       
-      <nav className="flex-1 space-y-1 px-3 py-4">
+      <nav className="flex-1 space-y-1 px-3 py-4 overflow-y-auto">
         {navigation.map((item) => {
           const isActive = pathname === item.href;
           const Icon = item.icon;

@@ -49,14 +49,12 @@ export function AppLayout({ children }: AppLayoutProps) {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="flex">
-        <div className="hidden md:block">
-          <Sidebar />
-        </div>
-        <div className="flex-1">
-          <Header />
-          <main className="p-4 md:p-6">{children}</main>
-        </div>
+      <div className="hidden md:block">
+        <Sidebar />
+      </div>
+      <div className="md:ml-64">
+        <Header />
+        <main className="p-4 md:p-6">{children}</main>
       </div>
     </div>
   );
