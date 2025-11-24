@@ -68,6 +68,7 @@ export default function TeamDivisionPage() {
   const [numberOfTeams, setNumberOfTeams] = useState(2);
   const [balanceStrategy, setBalanceStrategy] = useState<BalanceStrategy>('BALANCED');
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingMembers, setIsLoadingMembers] = useState(true);
   const [members, setMembers] = useState<Member[]>([]);
   const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
 
@@ -77,11 +78,18 @@ export default function TeamDivisionPage() {
   }, []);
 
   const loadMembers = async () => {
+    setIsLoadingMembers(true);
     try {
       const response = await api.get('/members');
-      setMembers(response.data.data || []);
+      // Chỉ lấy members ACTIVE
+      const activeMembers = (response.data.data || []).filter(
+        (m: Member) => m.status === 'ACTIVE'
+      );
+      setMembers(activeMembers);
     } catch (error) {
       console.error('Error loading members:', error);
+    } finally {
+      setIsLoadingMembers(false);
     }
   };
 
@@ -192,45 +200,74 @@ export default function TeamDivisionPage() {
                 <div>
                   <Label>Thành viên có sẵn</Label>
                   <div className="mt-2 max-h-60 overflow-y-auto rounded-md border p-2">
-                    {availableMembers.map(member => (
-                      <div
-                        key={member.id}
-                        className="flex cursor-pointer items-center justify-between rounded p-2 hover:bg-accent"
-                        onClick={() => addParticipant(member.id)}
-                      >
-                        <div>
-                          <p className="font-medium">{member.fullName}</p>
-                          <p className="text-sm text-muted-foreground">
-                            {getPositionDisplay(member.position)} - Kỹ năng:{' '}
-                            {calculateMemberSkill(member)}
-                          </p>
-                        </div>
-                        <Plus className="h-4 w-4" />
+                    {isLoadingMembers ? (
+                      <div className="flex items-center justify-center py-8">
+                        <RefreshCw className="h-6 w-6 animate-spin text-muted-foreground" />
+                        <span className="ml-2 text-sm text-muted-foreground">Đang tải...</span>
                       </div>
-                    ))}
+                    ) : availableMembers.length > 0 ? (
+                      availableMembers.map(member => (
+                        <div
+                          key={member.id}
+                          className="flex cursor-pointer items-center justify-between rounded p-2 hover:bg-accent"
+                          onClick={() => addParticipant(member.id)}
+                        >
+                          <div>
+                            <p className="font-medium">{member.fullName}</p>
+                            <p className="text-sm text-muted-foreground">
+                              {getPositionDisplay(member.position)} - Kỹ năng:{' '}
+                              {calculateMemberSkill(member)}
+                            </p>
+                          </div>
+                          <Plus className="h-4 w-4" />
+                        </div>
+                      ))
+                    ) : (
+                      <div className="flex flex-col items-center justify-center py-8 text-center">
+                        <Users className="h-12 w-12 text-muted-foreground/50" />
+                        <p className="mt-2 text-sm font-medium text-muted-foreground">
+                          Không có thành viên
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          Tất cả thành viên đã được chọn
+                        </p>
+                      </div>
+                    )}
                   </div>
                 </div>
 
                 <div>
                   <Label>Thành viên đã chọn ({participants.length})</Label>
                   <div className="mt-2 max-h-60 overflow-y-auto rounded-md border p-2">
-                    {participants.map((participant, index) => (
-                      <div
-                        key={participant.id}
-                        className="flex items-center justify-between rounded p-2 hover:bg-accent"
-                      >
-                        <div>
-                          <p className="font-medium">{participant.name}</p>
-                          <p className="text-sm text-muted-foreground">
-                            {getPositionDisplay(participant.position)} - Kỹ năng:{' '}
-                            {participant.skill}
-                          </p>
+                    {participants.length > 0 ? (
+                      participants.map((participant, index) => (
+                        <div
+                          key={participant.id}
+                          className="flex items-center justify-between rounded p-2 hover:bg-accent"
+                        >
+                          <div>
+                            <p className="font-medium">{participant.name}</p>
+                            <p className="text-sm text-muted-foreground">
+                              {getPositionDisplay(participant.position)} - Kỹ năng:{' '}
+                              {participant.skill}
+                            </p>
+                          </div>
+                          <Button variant="ghost" size="sm" onClick={() => removeParticipant(index)}>
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
                         </div>
-                        <Button variant="ghost" size="sm" onClick={() => removeParticipant(index)}>
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
+                      ))
+                    ) : (
+                      <div className="flex flex-col items-center justify-center py-8 text-center">
+                        <Users className="h-12 w-12 text-muted-foreground/50" />
+                        <p className="mt-2 text-sm font-medium text-muted-foreground">
+                          Chưa chọn thành viên
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          Click vào thành viên bên trái để thêm
+                        </p>
                       </div>
-                    ))}
+                    )}
                   </div>
                 </div>
               </div>
@@ -440,45 +477,74 @@ export default function TeamDivisionPage() {
                     <div>
                       <Label>Thành viên có sẵn</Label>
                       <div className="mt-2 max-h-60 overflow-y-auto rounded-md border p-2">
-                        {availableMembers.map(member => (
-                          <div
-                            key={member.id}
-                            className="flex cursor-pointer items-center justify-between rounded p-2 hover:bg-accent"
-                            onClick={() => addParticipant(member.id)}
-                          >
-                            <div>
-                              <p className="font-medium">{member.fullName}</p>
-                              <p className="text-sm text-muted-foreground">
-                                {getPositionDisplay(member.position)} - Kỹ năng:{' '}
-                                {calculateMemberSkill(member)}
-                              </p>
-                            </div>
-                            <Plus className="h-4 w-4" />
+                        {isLoadingMembers ? (
+                          <div className="flex items-center justify-center py-8">
+                            <RefreshCw className="h-6 w-6 animate-spin text-muted-foreground" />
+                            <span className="ml-2 text-sm text-muted-foreground">Đang tải...</span>
                           </div>
-                        ))}
+                        ) : availableMembers.length > 0 ? (
+                          availableMembers.map(member => (
+                            <div
+                              key={member.id}
+                              className="flex cursor-pointer items-center justify-between rounded p-2 hover:bg-accent"
+                              onClick={() => addParticipant(member.id)}
+                            >
+                              <div>
+                                <p className="font-medium">{member.fullName}</p>
+                                <p className="text-sm text-muted-foreground">
+                                  {getPositionDisplay(member.position)} - Kỹ năng:{' '}
+                                  {calculateMemberSkill(member)}
+                                </p>
+                              </div>
+                              <Plus className="h-4 w-4" />
+                            </div>
+                          ))
+                        ) : (
+                          <div className="flex flex-col items-center justify-center py-8 text-center">
+                            <Users className="h-12 w-12 text-muted-foreground/50" />
+                            <p className="mt-2 text-sm font-medium text-muted-foreground">
+                              Không có thành viên
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              Tất cả thành viên đã được chọn
+                            </p>
+                          </div>
+                        )}
                       </div>
                     </div>
 
                     <div>
                       <Label>Thành viên đã chọn ({participants.length})</Label>
                       <div className="mt-2 max-h-60 overflow-y-auto rounded-md border p-2">
-                        {participants.map((participant, index) => (
-                          <div
-                            key={participant.id}
-                            className="flex items-center justify-between rounded p-2 hover:bg-accent"
-                          >
-                            <div>
-                              <p className="font-medium">{participant.name}</p>
-                              <p className="text-sm text-muted-foreground">
-                                {getPositionDisplay(participant.position)} - Kỹ năng:{' '}
-                                {participant.skill}
-                              </p>
+                        {participants.length > 0 ? (
+                          participants.map((participant, index) => (
+                            <div
+                              key={participant.id}
+                              className="flex items-center justify-between rounded p-2 hover:bg-accent"
+                            >
+                              <div>
+                                <p className="font-medium">{participant.name}</p>
+                                <p className="text-sm text-muted-foreground">
+                                  {getPositionDisplay(participant.position)} - Kỹ năng:{' '}
+                                  {participant.skill}
+                                </p>
+                              </div>
+                              <Button variant="ghost" size="sm" onClick={() => removeParticipant(index)}>
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
                             </div>
-                            <Button variant="ghost" size="sm" onClick={() => removeParticipant(index)}>
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
+                          ))
+                        ) : (
+                          <div className="flex flex-col items-center justify-center py-8 text-center">
+                            <Users className="h-12 w-12 text-muted-foreground/50" />
+                            <p className="mt-2 text-sm font-medium text-muted-foreground">
+                              Chưa chọn thành viên
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              Click vào thành viên bên trái để thêm
+                            </p>
                           </div>
-                        ))}
+                        )}
                       </div>
                     </div>
                   </div>

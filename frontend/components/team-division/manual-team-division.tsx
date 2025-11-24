@@ -137,30 +137,39 @@ export function ManualTeamDivision({ participants }: ManualTeamDivisionProps) {
           <CardDescription>Chọn số lượng đội và phân chia thủ công</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex items-end gap-4">
-            <div className="flex-1">
-              <Label htmlFor="teams">Số lượng đội</Label>
-              <Select
-                value={numberOfTeams.toString()}
-                onValueChange={value => setNumberOfTeams(Number(value))}
-                disabled={teams.length > 0}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Số đội" />
-                </SelectTrigger>
-                <SelectContent>
-                  {[2, 3, 4, 5, 6].map(num => (
-                    <SelectItem key={num} value={num.toString()}>
-                      {num} đội
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+          <div className="space-y-4">
+            <div className="flex items-end gap-4">
+              <div className="flex-1">
+                <Label htmlFor="teams">Số lượng đội</Label>
+                <Select
+                  value={numberOfTeams.toString()}
+                  onValueChange={value => setNumberOfTeams(Number(value))}
+                  disabled={teams.length > 0}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Số đội" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {[2, 3, 4, 5, 6].map(num => (
+                      <SelectItem key={num} value={num.toString()}>
+                        {num} đội
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <Button onClick={initializeTeams} disabled={participants.length === 0}>
+                <Users className="mr-2 h-4 w-4" />
+                {teams.length > 0 ? 'Khởi tạo lại' : 'Bắt đầu chia đội'}
+              </Button>
             </div>
-            <Button onClick={initializeTeams} disabled={participants.length === 0}>
-              <Users className="mr-2 h-4 w-4" />
-              {teams.length > 0 ? 'Khởi tạo lại' : 'Bắt đầu chia đội'}
-            </Button>
+            {participants.length === 0 && (
+              <div className="rounded-lg border border-dashed bg-muted/50 p-4">
+                <p className="text-center text-sm text-muted-foreground">
+                  Vui lòng chọn thành viên ở phần trên trước khi bắt đầu chia đội
+                </p>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
