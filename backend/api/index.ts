@@ -39,7 +39,7 @@ export async function createNestApp() {
       app.useGlobalPipes(
         new ValidationPipe({
           whitelist: true,
-          forbidNonWhitelisted: true,
+          forbidNonWhitelisted: false, // Allow extra properties in query params
           transform: true,
           transformOptions: {
             enableImplicitConversion: true,
@@ -87,10 +87,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const path = (req.query.path as string) || req.url || '/';
     const cleanPath = path.replace(/^\/+|\/+$/g, '');
 
+    // Remove 'path' from query to avoid validation errors
+    const cleanQuery = { ...req.query };
+    delete cleanQuery.path;
+
     // Route everything to NestJS app - no fallbacks, force real database
     try {
       const nestApp = await createNestApp();
-      const expressReq = { ...req, url: `/${cleanPath}`, path: `/${cleanPath}`, originalUrl: `/${cleanPath}` };
+      const expressReq = {
+        ...req,
+        url: `/${cleanPath}${Object.keys(cleanQuery).length > 0 ? '?' + new URLSearchParams(cleanQuery as any).toString() : ''}`,
+        path: `/${cleanPath}`,
+        originalUrl: `/${cleanPath}`,
+        query: cleanQuery
+      };
       return nestApp.getHttpAdapter().getInstance()(expressReq, res);
     } catch (nestError) {
       console.error('NestJS error for path:', cleanPath, nestError);
