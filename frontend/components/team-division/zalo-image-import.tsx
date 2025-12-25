@@ -243,16 +243,11 @@ export function ZaloImageImport({ onImportComplete }: ZaloImageImportProps) {
       <CardContent className="space-y-4">
         {/* Upload Section */}
         {!result && (
-          <div 
-            className="space-y-4" 
-            onPaste={handlePaste}
-            ref={pasteAreaRef}
-            tabIndex={0}
-            style={{ outline: 'none' }}
-          >
+          <div className="space-y-4">
             <div>
               <Label htmlFor="image-upload">Chọn ảnh điểm danh</Label>
-              <div className="mt-2">
+              <div className="mt-2 space-y-3">
+                {/* File Upload */}
                 <input
                   id="image-upload"
                   type="file"
@@ -261,7 +256,7 @@ export function ZaloImageImport({ onImportComplete }: ZaloImageImportProps) {
                   className="hidden"
                 />
                 <label htmlFor="image-upload">
-                  <div className="flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground/25 p-6 transition-colors hover:border-muted-foreground/50 focus-within:border-primary">
+                  <div className="flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground/25 p-6 transition-colors hover:border-muted-foreground/50">
                     <Upload className="h-10 w-10 text-muted-foreground" />
                     <p className="mt-2 text-sm font-medium text-muted-foreground">
                       Click để chọn ảnh hoặc kéo thả vào đây
@@ -269,14 +264,24 @@ export function ZaloImageImport({ onImportComplete }: ZaloImageImportProps) {
                     <p className="mt-1 text-xs text-muted-foreground">
                       PNG, JPG, WebP (tối đa 10MB)
                     </p>
-                    <div className="mt-3 flex items-center gap-2 rounded-md bg-primary/10 px-3 py-1.5">
-                      <Camera className="h-4 w-4 text-primary" />
-                      <span className="text-xs font-medium text-primary">
-                        💡 Chụp màn hình Zalo rồi nhấn Ctrl+V ở đây
-                      </span>
-                    </div>
                   </div>
                 </label>
+
+                {/* Paste Area - Separate from upload */}
+                <div
+                  ref={pasteAreaRef}
+                  tabIndex={0}
+                  onPaste={handlePaste}
+                  className="flex cursor-text flex-col items-center justify-center rounded-lg border-2 border-dashed border-primary/30 bg-primary/5 p-4 transition-colors hover:border-primary/50 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                >
+                  <Camera className="h-8 w-8 text-primary" />
+                  <p className="mt-2 text-sm font-medium text-primary">
+                    💡 Hoặc chụp màn hình Zalo rồi click vào đây và nhấn Ctrl+V
+                  </p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Click vào khung này trước khi paste
+                  </p>
+                </div>
               </div>
             </div>
 
