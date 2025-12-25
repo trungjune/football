@@ -64,47 +64,55 @@ export function ZaloImageImport({ onImportComplete }: ZaloImageImportProps) {
     }
   }, [result]);
 
-  // Handle paste from clipboard
-  const handlePaste = async (event: React.ClipboardEvent) => {
-    const items = event.clipboardData?.items;
-    if (!items) return;
+  // Global paste handler
+  React.useEffect(() => {
+    const handleGlobalPaste = async (event: ClipboardEvent) => {
+      // Chỉ xử lý nếu không có result và không đang processing
+      if (result || isProcessing) return;
 
-    for (let i = 0; i < items.length; i++) {
-      const item = items[i];
-      
-      // Kiểm tra nếu là ảnh
-      if (item.type.startsWith('image/')) {
-        event.preventDefault();
+      const items = event.clipboardData?.items;
+      if (!items) return;
+
+      for (let i = 0; i < items.length; i++) {
+        const item = items[i];
         
-        const blob = item.getAsFile();
-        if (!blob) continue;
+        if (item.type.startsWith('image/')) {
+          event.preventDefault();
+          
+          const blob = item.getAsFile();
+          if (!blob) continue;
 
-        // Kiểm tra file size
-        if (blob.size > 10 * 1024 * 1024) {
-          setError('Kích thước ảnh không được vượt quá 10MB');
-          return;
+          if (blob.size > 10 * 1024 * 1024) {
+            setError('Kích thước ảnh không được vượt quá 10MB');
+            return;
+          }
+
+          const file = new File([blob], `pasted-image-${Date.now()}.png`, {
+            type: blob.type,
+          });
+
+          setSelectedFile(file);
+          setError(null);
+          setResult(null);
+
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            setPreviewUrl(reader.result as string);
+          };
+          reader.readAsDataURL(file);
+
+          break;
         }
-
-        // Convert blob to File
-        const file = new File([blob], `pasted-image-${Date.now()}.png`, {
-          type: blob.type,
-        });
-
-        setSelectedFile(file);
-        setError(null);
-        setResult(null);
-
-        // Tạo preview
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          setPreviewUrl(reader.result as string);
-        };
-        reader.readAsDataURL(file);
-
-        break;
       }
-    }
-  };
+    };
+
+    // Add global paste listener
+    document.addEventListener('paste', handleGlobalPaste);
+
+    return () => {
+      document.removeEventListener('paste', handleGlobalPaste);
+    };
+  }, [result, isProcessing]);
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -244,10 +252,19 @@ export function ZaloImageImport({ onImportComplete }: ZaloImageImportProps) {
         {/* Upload Section */}
         {!result && (
           <div className="space-y-4">
+            {/* Paste Hint - Prominent */}
+            <Alert className="border-primary/50 bg-primary/5">
+              <Camera className="h-4 w-4 text-primary" />
+              <AlertDescription className="text-sm">
+                <strong>💡 Cách nhanh nhất:</strong> Chụp màn hình Zalo (Win + Shift + S) rồi nhấn{' '}
+                <kbd className="rounded bg-muted px-1.5 py-0.5 text-xs font-semibold">Ctrl+V</kbd>{' '}
+                ở bất kỳ đâu trên trang này
+              </AlertDescription>
+            </Alert>
+
             <div>
-              <Label htmlFor="image-upload">Chọn ảnh điểm danh</Label>
-              <div className="mt-2 space-y-3">
-                {/* File Upload */}
+              <Label htmlFor="image-upload">Hoặc chọn file ảnh</Label>
+              <div className="mt-2">
                 <input
                   id="image-upload"
                   type="file"
@@ -259,29 +276,13 @@ export function ZaloImageImport({ onImportComplete }: ZaloImageImportProps) {
                   <div className="flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground/25 p-6 transition-colors hover:border-muted-foreground/50">
                     <Upload className="h-10 w-10 text-muted-foreground" />
                     <p className="mt-2 text-sm font-medium text-muted-foreground">
-                      Click để chọn ảnh hoặc kéo thả vào đây
+                      Click để chọn ảnh từ máy tính
                     </p>
                     <p className="mt-1 text-xs text-muted-foreground">
                       PNG, JPG, WebP (tối đa 10MB)
                     </p>
                   </div>
                 </label>
-
-                {/* Paste Area - Separate from upload */}
-                <div
-                  ref={pasteAreaRef}
-                  tabIndex={0}
-                  onPaste={handlePaste}
-                  className="flex cursor-text flex-col items-center justify-center rounded-lg border-2 border-dashed border-primary/30 bg-primary/5 p-4 transition-colors hover:border-primary/50 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-                >
-                  <Camera className="h-8 w-8 text-primary" />
-                  <p className="mt-2 text-sm font-medium text-primary">
-                    💡 Hoặc chụp màn hình Zalo rồi click vào đây và nhấn Ctrl+V
-                  </p>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    Click vào khung này trước khi paste
-                  </p>
-                </div>
               </div>
             </div>
 
