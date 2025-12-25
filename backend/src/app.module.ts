@@ -13,6 +13,7 @@ import { CacheModule } from './cache/cache.module';
 import { HealthModule } from './health/health.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { SettingsModule } from './settings/settings.module';
+import { OcrModule } from './ocr/ocr.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { SettingsModule } from './settings/settings.module';
     HealthModule,
     DashboardModule,
     SettingsModule,
+    OcrModule,
   ],
   controllers: [],
   providers: [],

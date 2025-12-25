@@ -16,6 +16,7 @@ import {
 import { RefreshCw, Trash2, Plus, Users, Hand } from 'lucide-react';
 import api from '@/lib/axios';
 import { ManualTeamDivision } from '@/components/team-division/manual-team-division';
+import { ZaloImageImport } from '@/components/team-division/zalo-image-import';
 
 type Position = 'GOALKEEPER' | 'DEFENDER' | 'MIDFIELDER' | 'FORWARD';
 type BalanceStrategy = 'RANDOM' | 'SKILL_BALANCED' | 'POSITION_BALANCED' | 'BALANCED';
@@ -108,6 +109,23 @@ export default function TeamDivisionPage() {
     setSelectedMembers(prev => [...prev, memberId]);
   };
 
+  const addParticipantsFromOCR = (ocrMembers: Array<{
+    memberId: string;
+    memberName: string;
+    position: Position;
+    skillLevel: number;
+  }>) => {
+    const newParticipants: Participant[] = ocrMembers.map(ocrMember => ({
+      id: ocrMember.memberId,
+      name: ocrMember.memberName,
+      skill: ocrMember.skillLevel,
+      position: ocrMember.position,
+    }));
+
+    setParticipants(prev => [...prev, ...newParticipants]);
+    setSelectedMembers(prev => [...prev, ...ocrMembers.map(m => m.memberId)]);
+  };
+
   const removeParticipant = (index: number) => {
     const participant = participants[index];
     setParticipants(prev => prev.filter((_, i) => i !== index));
@@ -188,6 +206,9 @@ export default function TeamDivisionPage() {
           </TabsList>
 
           <TabsContent value="auto" className="space-y-6 mt-6">
+
+        {/* Zalo Image Import */}
+        <ZaloImageImport onImportComplete={addParticipantsFromOCR} />
 
         <Card>
           <CardHeader>
