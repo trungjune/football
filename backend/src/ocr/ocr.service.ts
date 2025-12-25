@@ -118,19 +118,38 @@ export class OcrService {
       },
     });
 
-    // Lấy name mappings đã lưu
-    const nameMappings = await this.prisma.nameMapping.findMany({
-      include: {
-        member: {
-          select: {
-            id: true,
-            fullName: true,
-            position: true,
-            memberType: true,
+    // Lấy name mappings đã lưu (nếu có)
+    let nameMappings: Array<{
+      ocrName: string;
+      confidence: number;
+      member: {
+        id: string;
+        fullName: string;
+        position: string;
+        memberType: string;
+      };
+    }> = [];
+
+    try {
+      // Check if nameMapping exists in Prisma client
+      if ('nameMapping' in this.prisma) {
+        nameMappings = await (this.prisma as any).nameMapping.findMany({
+          include: {
+            member: {
+              select: {
+                id: true,
+                fullName: true,
+                position: true,
+                memberType: true,
+              },
+            },
           },
-        },
-      },
-    });
+        });
+      }
+    } catch (error) {
+      // Bảng nameMapping chưa có, bỏ qua
+      this.logger.warn('NameMapping table not found, skipping saved mappings');
+    }
 
     const matchedMembers: MatchedMember[] = [];
 
@@ -203,23 +222,31 @@ export class OcrService {
    * Lưu name mapping để cải thiện độ chính xác cho lần sau
    */
   async saveNameMapping(ocrName: string, memberId: string, confidence: number): Promise<void> {
-    await this.prisma.nameMapping.upsert({
-      where: {
-        ocrName_memberId: {
-          ocrName,
-          memberId,
-        },
-      },
-      create: {
-        ocrName,
-        memberId,
-        confidence,
-      },
-      update: {
-        confidence,
-        updatedAt: new Date(),
-      },
-    });
+    try {
+      // Check if nameMapping exists in Prisma client
+      if ('nameMapping' in this.prisma) {
+        await (this.prisma as any).nameMapping.upsert({
+          where: {
+            ocrName_memberId: {
+              ocrName,
+              memberId,
+            },
+          },
+          create: {
+            ocrName,
+            memberId,
+            confidence,
+          },
+          update: {
+            confidence,
+            updatedAt: new Date(),
+          },
+        });
+      }
+    } catch (error) {
+      // Bảng nameMapping chưa có, bỏ qua
+      this.logger.warn('Failed to save name mapping, table may not exist yet');
+    }
   }
 
   /**
