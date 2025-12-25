@@ -114,7 +114,6 @@ model Member {
   payments     Payment[]
   teamMembers  TeamMember[]
   registrations Registration[]
-  nameMappings NameMapping[]
 
   @@map("members")
 }
@@ -293,19 +292,4 @@ model SavedFormation {
   team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
 
   @@map("saved_formations")
-}
-
-model NameMapping {
-  id          String   @id @default(cuid())
-  ocrName     String   // Tên từ OCR (ví dụ: "Cuong Cop Beo")
-  memberId    String   // ID của member trong database
-  confidence  Float    // Độ tin cậy của mapping (0-1)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  // Relations
-  member Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
-
-  @@unique([ocrName, memberId])
-  @@map("name_mappings")
 }
