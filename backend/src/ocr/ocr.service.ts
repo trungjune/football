@@ -1,8 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { createWorker, Worker } from 'tesseract.js';
 import * as fuzzball from 'fuzzball';
 import { PrismaService } from '../prisma/prisma.service';
 import * as sharp from 'sharp';
+import axios from 'axios';
+import FormData from 'form-data';
 
 interface OCRResult {
   text: string;
@@ -22,34 +23,14 @@ interface MatchedMember {
 @Injectable()
 export class OcrService {
   private readonly logger = new Logger(OcrService.name);
-  private worker: Worker | null = null;
+  private readonly OCR_API_KEY = 'K87899142388957'; // Free tier API key
 
   constructor(private prisma: PrismaService) {}
 
-  async onModuleInit() {
-    // Khởi tạo Tesseract worker
-    try {
-      this.worker = await createWorker('vie+eng');
-      this.logger.log('Tesseract worker initialized successfully');
-    } catch (error) {
-      this.logger.error('Failed to initialize Tesseract worker', error);
-    }
-  }
-
-  async onModuleDestroy() {
-    if (this.worker) {
-      await this.worker.terminate();
-    }
-  }
-
   /**
-   * Xử lý ảnh và trích xuất text bằng OCR
+   * Xử lý ảnh và trích xuất text bằng OCR.space API
    */
   async processImage(imageBuffer: Buffer): Promise<OCRResult[]> {
-    if (!this.worker) {
-      throw new Error('OCR worker not initialized');
-    }
-
     try {
       // Tiền xử lý ảnh để tăng độ chính xác OCR
       const processedImage = await sharp(imageBuffer)
@@ -58,18 +39,39 @@ export class OcrService {
         .sharpen()
         .toBuffer();
 
-      // Chạy OCR
-      const {
-        data: { text, confidence },
-      } = await this.worker.recognize(processedImage);
+      // Convert to base64
+      const base64Image = processedImage.toString('base64');
 
-      // Parse text thành danh sách tên
-      const names = this.parseNames(text);
+      // Call OCR.space API
+      const formData = new FormData();
+      formData.append('base64Image', `data:image/png;base64,${base64Image}`);
+      formData.append('language', 'vie'); // Vietnamese
+      formData.append('isOverlayRequired', 'false');
+      formData.append('detectOrientation', 'true');
+      formData.append('scale', 'true');
+      formData.append('OCREngine', '2'); // Engine 2 supports Vietnamese
 
-      return names.map(name => ({
-        text: name,
-        confidence: confidence / 100, // Convert to 0-1
-      }));
+      const response = await axios.post('https://api.ocr.space/parse/image', formData, {
+        headers: {
+          apikey: this.OCR_API_KEY,
+          ...formData.getHeaders(),
+        },
+      });
+
+      if (!response.data.IsErroredOnProcessing && response.data.ParsedResults?.length > 0) {
+        const text = response.data.ParsedResults[0].ParsedText || '';
+        const confidence = response.data.ParsedResults[0].FileParseExitCode === 1 ? 0.9 : 0.7;
+
+        // Parse text thành danh sách tên
+        const names = this.parseNames(text);
+
+        return names.map(name => ({
+          text: name,
+          confidence,
+        }));
+      }
+
+      throw new Error('OCR processing failed');
     } catch (error) {
       this.logger.error('OCR processing failed', error);
       throw new Error('Không thể xử lý ảnh. Vui lòng thử lại.');
