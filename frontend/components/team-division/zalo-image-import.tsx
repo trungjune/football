@@ -54,6 +54,48 @@ export function ZaloImageImport({ onImportComplete }: ZaloImageImportProps) {
   // State cho manual corrections
   const [corrections, setCorrections] = useState<Map<string, string>>(new Map());
 
+  // Handle paste from clipboard
+  const handlePaste = async (event: React.ClipboardEvent) => {
+    const items = event.clipboardData?.items;
+    if (!items) return;
+
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      
+      // Kiểm tra nếu là ảnh
+      if (item.type.startsWith('image/')) {
+        event.preventDefault();
+        
+        const blob = item.getAsFile();
+        if (!blob) continue;
+
+        // Kiểm tra file size
+        if (blob.size > 10 * 1024 * 1024) {
+          setError('Kích thước ảnh không được vượt quá 10MB');
+          return;
+        }
+
+        // Convert blob to File
+        const file = new File([blob], `pasted-image-${Date.now()}.png`, {
+          type: blob.type,
+        });
+
+        setSelectedFile(file);
+        setError(null);
+        setResult(null);
+
+        // Tạo preview
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setPreviewUrl(reader.result as string);
+        };
+        reader.readAsDataURL(file);
+
+        break;
+      }
+    }
+  };
+
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -179,7 +221,7 @@ export function ZaloImageImport({ onImportComplete }: ZaloImageImportProps) {
       <CardContent className="space-y-4">
         {/* Upload Section */}
         {!result && (
-          <div className="space-y-4">
+          <div className="space-y-4" onPaste={handlePaste}>
             <div>
               <Label htmlFor="image-upload">Chọn ảnh điểm danh</Label>
               <div className="mt-2">
@@ -193,12 +235,18 @@ export function ZaloImageImport({ onImportComplete }: ZaloImageImportProps) {
                 <label htmlFor="image-upload">
                   <div className="flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground/25 p-6 transition-colors hover:border-muted-foreground/50">
                     <Upload className="h-10 w-10 text-muted-foreground" />
-                    <p className="mt-2 text-sm text-muted-foreground">
+                    <p className="mt-2 text-sm font-medium text-muted-foreground">
                       Click để chọn ảnh hoặc kéo thả vào đây
                     </p>
                     <p className="mt-1 text-xs text-muted-foreground">
                       PNG, JPG, WebP (tối đa 10MB)
                     </p>
+                    <div className="mt-3 flex items-center gap-2 rounded-md bg-primary/10 px-3 py-1.5">
+                      <Camera className="h-4 w-4 text-primary" />
+                      <span className="text-xs font-medium text-primary">
+                        Hoặc Ctrl+V để paste ảnh từ clipboard
+                      </span>
+                    </div>
                   </div>
                 </label>
               </div>
